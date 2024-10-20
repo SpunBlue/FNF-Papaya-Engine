@@ -28,4 +28,4 @@ I plan on implementing easy tools for developing your FNF Mod into the Engine, a
 We don't talk about those... but seriously, they were programmed badly and lazily, and were made for softmodding. This is not.
 
 ## Credits
-Friday Night Funkin' is developed and owned by The Funkin' Crew Inc. Support them (here)[https://ninja-muffin24.itch.io/funkin]!
+Friday Night Funkin' is developed and owned by The Funkin' Crew Inc. Support them by clicking (https://ninja-muffin24.itch.io/funkin)[Here]!
