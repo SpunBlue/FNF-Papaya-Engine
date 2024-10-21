@@ -10,8 +10,11 @@ typedef OptionsData = {
 
 class Options
 {
-    public static var controlScheme:Array<ControlScheme> = [];
-    public static var options:Array<OptionsData> = [
+    public static final defaultOptions:Array<OptionsData> = [
+        {
+            name: "144FPS",
+            toggle: true
+        },
         {
             name: "allowDistractions",
             toggle: true
@@ -34,18 +37,77 @@ class Options
         }
     ];
 
+    public static var options:Array<OptionsData> = [];
+    public static var controlScheme:Array<ControlScheme> = [
+        {
+            input: "left",
+            key: D
+        },
+        {
+            input: "down",
+            key: F
+        },
+        {
+            input: 'up',
+            key: J
+        },
+        {
+            input: 'right',
+            key: K
+        }
+    ];
+
     public static function init()
     {
         FlxG.save.bind('papaya', 'spunblue');
+        var savedOptions:Array<OptionsData> = FlxG.save.data.options;
 
-        if (FlxG.save.data.options != null)
-            options = FlxG.save.data.options;
+        options = defaultOptions;
+        if (savedOptions != null) {
+            var safe:Bool = true;
 
-        if (FlxG.save.data.controlScheme != null)
+            for (i in 0...options.length) {
+                if (savedOptions[i] == null) {
+                    safe = false;
+                    break;
+                }
+                else if (savedOptions[i].name != options[i].name) {
+                    safe = false;
+                    break;
+                }
+            }
+
+            if (safe)
+                options = savedOptions;
+            else {
+                trace('Saved Options are invalid.');
+                FlxG.save.data.options = null;
+            }
+        }
+        
+        var savedControlScheme:Array<ControlScheme> = FlxG.save.data.controlScheme;
+        if (savedControlScheme != null && savedControlScheme.length == controlScheme.length)
             controlScheme = FlxG.save.data.controlScheme;
+        else {
+            trace('Saved Keybinds are invalid.');
+            FlxG.save.data.controlScheme = null;
+        }
 
         Highscore.load();
         Controls.init();
+
+        checkOptions();
+    }
+
+    /**
+     * Make sure that options set at runtime are set properly, and if not, set them properly.
+     */
+    public static function checkOptions()
+    {
+        if (Options.get('144FPS'))
+			FlxG.drawFramerate = FlxG.updateFramerate = 144;
+		else
+			FlxG.drawFramerate = FlxG.updateFramerate = 60;
     }
 
     public static function save()
@@ -66,6 +128,7 @@ class Options
         }
 
         save();
+        checkOptions();
     }
 
     public static function get(name:String):Bool

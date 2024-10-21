@@ -1,5 +1,6 @@
 package;
 
+import engine.Options;
 import flixel.FlxG;
 import flixel.input.keyboard.FlxKey;
 
@@ -36,10 +37,10 @@ class Controls {
 
 	public static function init() // temporary
 	{
-		controlMap.set("left", [FlxKey.LEFT, D]);
-		controlMap.set("down", [FlxKey.DOWN, F]);
-		controlMap.set("up", [FlxKey.UP, J]);
-		controlMap.set("right", [FlxKey.RIGHT, K]);
+		controlMap.set("left", [FlxKey.LEFT, Options.controlScheme[0].key]);
+		controlMap.set("down", [FlxKey.DOWN, Options.controlScheme[1].key]);
+		controlMap.set("up", [FlxKey.UP, Options.controlScheme[2].key]);
+		controlMap.set("right", [FlxKey.RIGHT, Options.controlScheme[3].key]);
 
 		controlMap.set("accept", [ENTER, SPACE]);
 		controlMap.set("back", [ESCAPE, BACKSPACE]);

@@ -1,5 +1,6 @@
 package;
 
+import flixel.text.FlxText;
 import engine.Options;
 import flixel.FlxObject;
 import flixel.math.FlxPoint;
@@ -19,11 +20,11 @@ class OptionsSubState extends MusicBeatSubstate
 			group: "Gameplay",
 			options: [
 				{
-					text: "Toggle Distractions",
+					text: "Use Distractions",
 					nameOfOption: "allowDistractions"
 				},
 				{
-					text: "Allow Mod Charts", // easier Mod Charts are planned but not yet implemented
+					text: "Use Mod Charts", // easier Mod Charts are planned but not yet implemented
 					nameOfOption: "allowModCharts"
 				}
 			]
@@ -32,7 +33,11 @@ class OptionsSubState extends MusicBeatSubstate
 			group: "Graphics",
 			options: [
 				{
-					text: "Limit Flashes",
+					text: "Increase Max FPS",
+					nameOfOption: "144FPS"
+				},
+				{
+					text: "Limit Flashing Lights",
 					nameOfOption: "limitFlashing"
 				},
 				{
@@ -58,6 +63,7 @@ class OptionsSubState extends MusicBeatSubstate
 
 	var optionBackdrop:FlxSprite;
 	var camFollow:FlxObject = new FlxObject();
+	var infoText:Alphabet;
 
 	public function new(?useTransparentBG:Bool = true)
 	{
@@ -86,6 +92,13 @@ class OptionsSubState extends MusicBeatSubstate
 		optionBackdrop.scrollFactor.set();
 		add(optionBackdrop);
 
+		infoText = new Alphabet(0, 0, "Green means Enabled, Red means Disabled.", true, false, -24);
+		infoText.screenCenter(X);
+		infoText.scrollFactor.set();
+		infoText.scale.set(0.5, 0.5);
+		infoText.visible = false;
+		// add(infoText); // eh, i feel like it's self explanatory
+
 		createMenuItems();
 
 		optionItems.camera = optionCam;
@@ -110,20 +123,26 @@ class OptionsSubState extends MusicBeatSubstate
 				for (option in innerOptionItems)
 					option.destroy();
 				innerOptionItems.clear();
-	
+
 				innerMenu = false;
 				curSelected = lastSelected;
+
+				infoText.visible = false;
 
 				updateMenuItems();
 			}
 		}
 		else if (controls.ACCEPT) {
+			FlxG.sound.play(Paths.getSound("confirmMenu"));
+
 			if (!innerMenu) {
 				// Open Inner Option Menu, or Open Substate.
 				switch (optionItems.members[curSelected].text.toLowerCase()) {
 					default:
 						innerMenu = true;
 						lastSelected = curSelected;
+
+						infoText.visible = true;
 
 						createInnerMenuItems(optionItems.members[lastSelected].text);
 					case 'controls':
