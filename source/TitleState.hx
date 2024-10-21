@@ -1,5 +1,6 @@
 package;
 
+import engine.Options;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -52,11 +53,7 @@ class TitleState extends MusicBeatState
 
 		super.create();
 
-		FlxG.save.bind('funkin', 'ninjamuffin99');
-
-		Controls.init();
-
-		Highscore.load();
+		Options.init();
 
 		#if FREEPLAY
 		FlxG.switchState(new FreeplayState());

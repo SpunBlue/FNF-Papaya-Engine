@@ -21,14 +21,9 @@ class MainMenuState extends MusicBeatState
 
 	var menuItems:FlxTypedGroup<FlxSprite>;
 
-	#if !switch
-	var optionShit:Array<String> = ['story mode', 'freeplay', 'donate'];
-	#else
-	var optionShit:Array<String> = ['story mode', 'freeplay'];
-	#end
+	var optionShit:Array<String> = ['story mode', 'freeplay', 'options'];
 
 	var magenta:FlxSprite;
-	var camFollow:FlxObject;
 
 	override function create()
 	{
@@ -50,9 +45,6 @@ class MainMenuState extends MusicBeatState
 		bg.screenCenter();
 		bg.antialiasing = true;
 		add(bg);
-
-		camFollow = new FlxObject(0, 0, 1, 1);
-		add(camFollow);
 
 		magenta = new FlxSprite(-80).loadGraphic('assets/images/menuDesat.png');
 		magenta.scrollFactor.x = 0;
@@ -85,8 +77,6 @@ class MainMenuState extends MusicBeatState
 			menuItem.antialiasing = true;
 		}
 
-		FlxG.camera.follow(camFollow, null, 0.06);
-
 		var versionShit:FlxText = new FlxText(5, FlxG.height - 18, 0, "v" + Application.current.meta.get('version'), 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -104,11 +94,9 @@ class MainMenuState extends MusicBeatState
 	override function update(elapsed:Float)
 	{
 		if (FlxG.sound.music.volume < 0.8)
-		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
-		}
 
-		if (!selectedSomethin)
+		if (!selectedSomethin && !subStateOpen)
 		{
 			if (controls.UP_P)
 			{
@@ -122,63 +110,38 @@ class MainMenuState extends MusicBeatState
 				changeItem(1);
 			}
 
-			if (controls.BACK)
-			{
-				FlxG.switchState(new TitleState());
-			}
-
 			if (controls.ACCEPT)
 			{
-				if (optionShit[curSelected] == 'donate')
-				{
-					#if linux
-					Sys.command('/usr/bin/xdg-open', ["https://ninja-muffin24.itch.io/funkin", "&"]);
-					#else
-					FlxG.openURL('https://ninja-muffin24.itch.io/funkin');
-					#end
-				}
-				else
-				{
-					selectedSomethin = true;
-					FlxG.sound.play('assets/sounds/confirmMenu' + TitleState.soundExt);
+				selectedSomethin = true;
+				FlxG.sound.play('assets/sounds/confirmMenu' + TitleState.soundExt);
 
-					FlxFlicker.flicker(magenta, 1.1, 0.15, false);
+				FlxFlicker.flicker(magenta, 1.1, 0.15, false);
 
-					menuItems.forEach(function(spr:FlxSprite)
+				menuItems.forEach(function(spr:FlxSprite)
+				{
+					if (curSelected == spr.ID)
 					{
-						if (curSelected != spr.ID)
+						FlxFlicker.flicker(spr, 1, 0.06, true, false, function(flick:FlxFlicker)
 						{
-							FlxTween.tween(spr, {alpha: 0}, 0.4, {
-								ease: FlxEase.quadOut,
-								onComplete: function(twn:FlxTween)
-								{
-									spr.kill();
-								}
-							});
-						}
-						else
-						{
-							FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker)
+							var daChoice:String = optionShit[curSelected];
+
+							switch (daChoice)
 							{
-								var daChoice:String = optionShit[curSelected];
+								case 'story mode':
+									FlxG.switchState(new StoryMenuState());
+									trace("Story Menu Selected");
+								case 'freeplay':
+									FlxG.switchState(new FreeplayState());
 
-								switch (daChoice)
-								{
-									case 'story mode':
-										FlxG.switchState(new StoryMenuState());
-										trace("Story Menu Selected");
-									case 'freeplay':
-										FlxG.switchState(new FreeplayState());
+									trace("Freeplay Menu Selected");
 
-										trace("Freeplay Menu Selected");
-
-									case 'options':
-										FlxG.switchState(new OptionsMenu());
-								}
-							});
-						}
-					});
-				}
+								case 'options':
+									openSubState(new OptionsSubState());
+									selectedSomethin = false;
+							}
+						});
+					}
+				});
 			}
 		}
 
@@ -206,7 +169,6 @@ class MainMenuState extends MusicBeatState
 			if (spr.ID == curSelected)
 			{
 				spr.animation.play('selected');
-				camFollow.setPosition(spr.getGraphicMidpoint().x, spr.getGraphicMidpoint().y);
 			}
 
 			spr.updateHitbox();

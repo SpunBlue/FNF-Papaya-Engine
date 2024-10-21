@@ -16,6 +16,8 @@ class MusicBeatState extends FlxUIState
 	private var curBeat:Int = 0;
 	private var controls:Controls = new Controls();
 
+	private var subStateOpen:Bool = false;
+
 	override function create()
 	{
 		if (transIn != null)
@@ -30,6 +32,11 @@ class MusicBeatState extends FlxUIState
 
 	override function update(elapsed:Float)
 	{
+		if (subState != null)
+			subStateOpen = true;
+		else
+			subStateOpen = false;
+
 		controls.update();
 
 		//everyStep();
