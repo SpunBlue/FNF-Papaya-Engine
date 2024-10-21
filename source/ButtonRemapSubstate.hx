@@ -38,6 +38,7 @@ class ButtonRemapSubstate extends MusicBeatSubstate
 		magenta.updateHitbox();
 		magenta.setPosition();
 		magenta.color = 0xFFfd719b;
+		magenta.alpha = 0.7;
 		add(magenta);
 
 		add(notes);

@@ -41,21 +41,21 @@ class Options
     public static var controlScheme:Array<ControlScheme> = [
         {
             input: "left",
-            key: D
+            key: A
         },
         {
             input: "down",
-            key: F
+            key: S
         },
         {
             input: 'up',
-            key: J
+            key: W
         },
         {
             input: 'right',
-            key: K
+            key: D
         }
-    ];
+    ]; // D, F, J, K. Will forever be superior.
 
     public static function init()
     {

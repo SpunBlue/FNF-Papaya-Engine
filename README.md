@@ -15,7 +15,7 @@ This Engine does not, and will likely never, support softmodding. If I do, it wi
 - Open the Repo in VS:Code and begin modding!
 
 ### Can I contribute to the Engine?
-Hell yeah you can.
+Hell yeah you can, just make sure all contributions are made to the Dev branch.
 
 ## Q & A
 ### Can I use this as a base for my own FNF Engine?
