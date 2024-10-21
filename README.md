@@ -30,4 +30,4 @@ We don't talk about those... but seriously, they were programmed badly and lazil
 Because it doesn't let me fork a repo I already have a fork of, and I'm not moving it to an organization like I did with Sublime Engine.
 
 ## Credits
-Friday Night Funkin' is developed and owned by The Funkin' Crew Inc. Support them by clicking (https://ninja-muffin24.itch.io/funkin)[Here]!
+Friday Night Funkin' is developed and owned by The Funkin' Crew Inc. Support them by clicking on this: [FNF Itch.io](https://ninja-muffin24.itch.io/funkin)!
