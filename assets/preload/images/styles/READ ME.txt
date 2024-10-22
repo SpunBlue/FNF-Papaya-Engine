@@ -1,0 +1,1 @@
+Your Note Assets must have a frame size of 160x160. This is not your spritesheet size.

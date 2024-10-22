@@ -27,10 +27,10 @@ class Options
             name: "limitFlashing",
             toggle: false
         },
-        {
+        /*{
             name: "disableAntialiasing",
             toggle: false
-        },
+        },*/
         {
             name: "forceDefaultStyle",
             toggle: false

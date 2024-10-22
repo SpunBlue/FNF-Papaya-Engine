@@ -20,7 +20,7 @@ class OptionsSubState extends MusicBeatSubstate
 			group: "Gameplay",
 			options: [
 				{
-					text: "Use Distractions",
+					text: "Allow Distractions",
 					nameOfOption: "allowDistractions"
 				},
 				{
@@ -40,10 +40,10 @@ class OptionsSubState extends MusicBeatSubstate
 					text: "Limit Flashing Lights",
 					nameOfOption: "limitFlashing"
 				},
-				{
+				/*{
 					text: "Disable Antialiasing",
 					nameOfOption: "disableAntialiasing"
-				},
+				},*/
 				{
 					text: "Force Default Note Style",
 					nameOfOption: "forceDefaultStyle"
@@ -65,11 +65,12 @@ class OptionsSubState extends MusicBeatSubstate
 	var camFollow:FlxObject = new FlxObject();
 	var infoText:Alphabet;
 
-	public function new(?useTransparentBG:Bool = true)
+	public function new(?useTransparentBG:Bool = true, ?useTransIn:Bool = true)
 	{
 		optionCam = new FlxCamera();
 		optionCam.bgColor = FlxColor.TRANSPARENT;
-		optionCam.alpha = 0;
+		if (useTransIn)
+			optionCam.alpha = 0;
 
 		this.camera = optionCam; // fuck you
 		FlxG.cameras.add(optionCam, false);
@@ -107,7 +108,8 @@ class OptionsSubState extends MusicBeatSubstate
 		innerOptionItems.camera = optionCam;
 		add(innerOptionItems);
 
-		FlxTween.tween(optionCam, {alpha: 1}, 0.25);
+		if (useTransIn)
+			FlxTween.tween(optionCam, {alpha: 1}, 0.25);
 	}
 
 	override public function update(elapsed:Float)

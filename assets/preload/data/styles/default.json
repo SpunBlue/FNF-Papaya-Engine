@@ -1,0 +1,142 @@
+{
+    "root": "default",
+    "strumImagePath": "NOTE_assets",
+    "noteImagePath": "NOTE_assets",
+
+    "numDirectoryPath": "nums",
+    "ratingsDirectoryPath": "ratings",
+    "uiDirectoryPath": "ui",
+
+    "strumAnimations": [
+        {
+            "direction": 0,
+            "idle": {
+                "prefix": "arrowLEFT",
+                "fps": 24
+            },
+            "pressed": {
+                "prefix": "left press",
+                "fps": 24
+            },
+            "confirm": {
+                "prefix": "left confirm",
+                "fps": 24,
+                "offsetX": -13,
+                "offsetY": -13
+            }
+        },
+        {
+            "direction": 1,
+            "idle": {
+                "prefix": "arrowDOWN",
+                "fps": 24
+            },
+            "pressed": {
+                "prefix": "down press",
+                "fps": 24
+            },
+            "confirm": {
+                "prefix": "down confirm",
+                "fps": 24,
+                "offsetX": -16,
+                "offsetY": -10
+            }
+        },
+        {
+            "direction": 2,
+            "idle": {
+                "prefix": "arrowUP",
+                "fps": 24
+            },
+            "pressed": {
+                "prefix": "up press",
+                "fps": 24
+            },
+            "confirm": {
+                "prefix": "up confirm",
+                "fps": 24,
+                "offsetX": -13,
+                "offsetY": -13
+            }
+        },
+        {
+            "direction": 3,
+            "idle": {
+                "prefix": "arrowRIGHT",
+                "fps": 24
+            },
+            "pressed": {
+                "prefix": "right press",
+                "fps": 24
+            },
+            "confirm": {
+                "prefix": "right confirm",
+                "fps": 24,
+                "offsetX": -13,
+                "offsetY": -13
+            }
+        }
+    ],
+    "noteAnimations": [
+        {
+            "direction": 0,
+            "idle": {
+                "prefix": "purple0",
+                "fps": 24
+            },
+            "holding": {
+                "prefix": "purple hold piece",
+                "fps": 24
+            },
+            "holdends": {
+                "prefix": "pruple end hold",
+                "fps": 24
+            }
+        },
+        {
+            "direction": 1,
+            "idle": {
+                "prefix": "blue0",
+                "fps": 24
+            },
+            "holding": {
+                "prefix": "blue hold piece",
+                "fps": 24
+            },
+            "holdends": {
+                "prefix": "blue hold end",
+                "fps": 24
+            }
+        },
+        {
+            "direction": 2,
+            "idle": {
+                "prefix": "green0",
+                "fps": 24
+            },
+            "holding": {
+                "prefix": "green hold piece",
+                "fps": 24
+            },
+            "holdends": {
+                "prefix": "green hold end",
+                "fps": 24
+            }
+        },
+        {
+            "direction": 3,
+            "idle": {
+                "prefix": "red0",
+                "fps": 24
+            },
+            "holding": {
+                "prefix": "red hold piece",
+                "fps": 24
+            },
+            "holdends": {
+                "prefix": "red hold end",
+                "fps": 24
+            }
+        }
+    ]
+}

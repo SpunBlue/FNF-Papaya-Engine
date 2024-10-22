@@ -37,8 +37,6 @@ class MusicBeatState extends FlxUIState
 		else
 			subStateOpen = false;
 
-		controls.update();
-
 		//everyStep();
 		var oldStep:Int = curStep;
 
@@ -49,6 +47,8 @@ class MusicBeatState extends FlxUIState
 			stepHit();
 
 		super.update(elapsed);
+
+		controls.update();
 	}
 
 	private function updateBeat():Void

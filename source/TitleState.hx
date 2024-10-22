@@ -1,5 +1,6 @@
 package;
 
+import engine.Styles.StyleHandler;
 import engine.Options;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -54,6 +55,7 @@ class TitleState extends MusicBeatState
 		super.create();
 
 		Options.init();
+		StyleHandler.init();
 
 		#if FREEPLAY
 		FlxG.switchState(new FreeplayState());

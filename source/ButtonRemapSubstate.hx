@@ -1,5 +1,6 @@
 package;
 
+import objects.ArrowStrums;
 import Alphabet.AlphaCharacter;
 import flixel.math.FlxRandom;
 import flixel.input.keyboard.FlxKeyList;
@@ -19,13 +20,14 @@ class ButtonRemapSubstate extends MusicBeatSubstate
 
 	var curSelected:Int = 0;
 
-	var notes:FlxTypedGroup<FlxSprite> = new FlxTypedGroup(4);
+	var notes:ArrowStrums;
 	var letters:FlxTypedGroup<AlphaCharacter> = new FlxTypedGroup(4);
 
 	var hitAKey:Alphabet;
 
 	public function new() {
 		realCam = new FlxCamera(Math.round(FlxG.width / 4), Math.round(FlxG.height / 4), Math.round(FlxG.width / 2), Math.round(FlxG.height / 2));
+		realCam.bgColor =  FlxColor.TRANSPARENT;
 
 		FlxG.cameras.add(realCam, false);
 		
@@ -33,15 +35,23 @@ class ButtonRemapSubstate extends MusicBeatSubstate
 
 		super();
 
-		var magenta:FlxSprite = new FlxSprite().loadGraphic('assets/images/menuDesat.png');
+		/*var magenta:FlxSprite = new FlxSprite().loadGraphic('assets/images/menuDesat.png');
 		magenta.scale.set(0.5, 0.5);
 		magenta.updateHitbox();
 		magenta.setPosition();
 		magenta.color = 0xFFfd719b;
 		magenta.alpha = 0.7;
-		add(magenta);
+		add(magenta);*/
 
+		notes = new ArrowStrums(Note.swagWidth / 1.2, (realCam.height / 2) - Note.swagWidth / 2);
 		add(notes);
+
+		for (i in 0...4) {
+			var letter:AlphaCharacter = new AlphaCharacter(0, 0);
+			letter.setPosition(notes.strums[i].x + 30, notes.strums[i].y - 69); // 69 nice
+			letters.add(letter);
+		}
+
 		add(letters);
 
 		hitAKey = new Alphabet(0, 0, "Press Any Key", true, false, -24);
@@ -49,54 +59,10 @@ class ButtonRemapSubstate extends MusicBeatSubstate
 		hitAKey.updateHitbox();
 
 		hitAKey.x = (realCam.width / 2) - 360; // screenCenter() fucking HATES ME bro
-		hitAKey.y = (realCam.height - hitAKey.height) - 32;
+		hitAKey.y = (realCam.height - hitAKey.height) - 64;
 
 		hitAKey.visible = false;
 		add(hitAKey);
-
-		// doesn't work if i do 0...3 depite 0 - 3 being 4??? maybe I'm just dumb
-		for (i in 0...4) {
-			var babyArrow:FlxSprite = new FlxSprite(Note.swagWidth / 1.2, (realCam.height / 2) - Note.swagWidth / 2);
-			var letter:AlphaCharacter = new AlphaCharacter(0, 0);
-
-			babyArrow.frames = Paths.getSparrow('NOTE_assets');
-
-			babyArrow.antialiasing = true;
-			babyArrow.setGraphicSize(Std.int(babyArrow.width * 0.7));
-
-			switch (i)
-			{
-				case 0:
-					babyArrow.x += Note.swagWidth * 0;
-					babyArrow.animation.addByPrefix('static', 'arrowLEFT');
-					babyArrow.animation.addByPrefix('pressed', 'left press', 24, false);
-					babyArrow.animation.addByPrefix('confirm', 'left confirm', 24, false);
-				case 1:
-					babyArrow.x += Note.swagWidth * 1;
-					babyArrow.animation.addByPrefix('static', 'arrowDOWN');
-					babyArrow.animation.addByPrefix('pressed', 'down press', 24, false);
-					babyArrow.animation.addByPrefix('confirm', 'down confirm', 24, false);
-				case 2:
-					babyArrow.x += Note.swagWidth * 2;
-					babyArrow.animation.addByPrefix('static', 'arrowUP');
-					babyArrow.animation.addByPrefix('pressed', 'up press', 24, false);
-					babyArrow.animation.addByPrefix('confirm', 'up confirm', 24, false);
-				case 3:
-					babyArrow.x += Note.swagWidth * 3;
-					babyArrow.animation.addByPrefix('static', 'arrowRIGHT');
-					babyArrow.animation.addByPrefix('pressed', 'right press', 24, false);
-					babyArrow.animation.addByPrefix('confirm', 'right confirm', 24, false);
-			}
-
-			babyArrow.updateHitbox();
-			babyArrow.scrollFactor.set();
-
-			letter.setPosition(babyArrow.x + 36, babyArrow.y + 32);
-
-			babyArrow.animation.play('static');
-			notes.add(babyArrow);
-			letters.add(letter);
-		}
 
 		updateNotes();
 		updateLetters();
@@ -126,11 +92,8 @@ class ButtonRemapSubstate extends MusicBeatSubstate
 			updateNotes();
 		}
 		else if (settingKeybind) {
-			// I'll reimplement this once I rewrite the strumline code
-			/*if (notes.members[curSelected].animation.curAnim.name != "confirm") {
-				var note = notes.members[curSelected];
-				note.animation.play('confirm');
-			}*/
+			if (notes.strums[curSelected].animation.curAnim.name != "confirm")
+				notes.playAnim(curSelected, 'confirm');
 
 			hitAKey.visible = true;
 
@@ -161,19 +124,19 @@ class ButtonRemapSubstate extends MusicBeatSubstate
 		for (i in 0...notes.members.length)
 		{
 			if (i == curSelected)
-				notes.members[i].animation.play('pressed');
+				notes.playAnim(i, 'pressed');
 			else
-				notes.members[i].animation.play('static');
+				notes.playAnim(i, 'static');
 
 			if (notes.members[i].animation.curAnim.name == 'confirm' && notes.members[i].animation.curAnim.finished)
-				notes.members[i].animation.play('pressed');
+				notes.playAnim(i, 'static');
 		}
 	}
 	
 	function updateLetters()
 	{
 		for (i in 0...letters.members.length)
-			letters.members[i].createLetter(Options.controlScheme[i].key.toString());
+			letters.members[i].createBold(Options.controlScheme[i].key.toString().toUpperCase());
 	}
 
 	override public function close(){
