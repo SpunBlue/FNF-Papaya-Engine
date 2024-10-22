@@ -1,5 +1,6 @@
 package;
 
+import objects.Note;
 import Section.SwagSection;
 import Song.SwagSong;
 import Conductor.BPMChangeEvent;

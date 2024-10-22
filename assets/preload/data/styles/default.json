@@ -3,6 +3,15 @@
     "strumImagePath": "NOTE_assets",
     "noteImagePath": "NOTE_assets",
 
+    "enableSplashes": true,
+    "splashesImagePath": "noteSplashes",
+    "splashProperties": {
+        "offsetX": -80,
+        "offsetY": -96,
+        "alpha": 0.7,
+        "impactAmount": 2
+    },
+
     "numDirectoryPath": "nums",
     "ratingsDirectoryPath": "ratings",
     "uiDirectoryPath": "ui",
@@ -38,7 +47,7 @@
             "confirm": {
                 "prefix": "down confirm",
                 "fps": 24,
-                "offsetX": -16,
+                "offsetX": -15,
                 "offsetY": -10
             }
         },

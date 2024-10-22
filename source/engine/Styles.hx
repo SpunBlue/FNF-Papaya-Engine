@@ -1,5 +1,6 @@
 package engine;
 
+import objects.NoteSplash.SplashProperties;
 import flixel.graphics.frames.FlxAtlasFrames;
 import haxe.Json;
 import openfl.Assets;
@@ -43,6 +44,10 @@ typedef StyleData =
     var root:String;
 	var strumImagePath:String;
 	var noteImagePath:String;
+    
+    var enableSplashes:Bool;
+    var ?splashesImagePath:String;
+    var ?splashProperties:SplashProperties;
 
 	var strumAnimations:Array<StrumShit>;
 	var noteAnimations:Array<NoteShit>;

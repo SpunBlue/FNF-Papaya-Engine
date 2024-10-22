@@ -1,5 +1,6 @@
 package;
 
+import objects.Note;
 import objects.ArrowStrums;
 import Alphabet.AlphaCharacter;
 import flixel.math.FlxRandom;

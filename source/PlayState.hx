@@ -1,5 +1,7 @@
 package;
 
+import objects.NoteSplash;
+import objects.Note;
 import engine.Styles.StyleHandler;
 import objects.ArrowStrums;
 import Section.SwagSection;
@@ -68,6 +70,8 @@ class PlayState extends MusicBeatState
 
 	private var playerStrums:ArrowStrums;
 	private var opponentStrums:ArrowStrums;
+
+	private var splashes:FlxTypedGroup<NoteSplash>;
 
 	private var camZooming:Bool = false;
 	private var curSong:String = "";
@@ -184,6 +188,14 @@ class PlayState extends MusicBeatState
 		generateStaticArrows(1);
 		add(playerStrums);
 
+		splashes = new FlxTypedGroup<NoteSplash>();
+
+		var tempSplash:NoteSplash = new NoteSplash();
+		splashes.add(tempSplash);
+		tempSplash.kill();
+
+		add(splashes);
+
 		/*strumLineNotes = new FlxTypedGroup<Note>();
 		add(strumLineNotes);*/
 
@@ -233,6 +245,7 @@ class PlayState extends MusicBeatState
 		playerStrums.cameras = [camHUD];
 		opponentStrums.cameras = [camHUD];
 		// strumLineNotes.cameras = [camHUD];
+		splashes.cameras = [camHUD];
 		notes.cameras = [camHUD];
 		healthBar.cameras = [camHUD];
 		healthBarBG.cameras = [camHUD];
@@ -713,7 +726,7 @@ class PlayState extends MusicBeatState
 						strumLine = opponentStrums;
 				}
 
-				daNote.y = (strumLine.strums[daNote.noteData].y - (Conductor.songPosition - daNote.strumTime) * (0.45 * FlxMath.roundDecimal(SONG.speed, 2))) + daNote.yOffset;
+				daNote.y = (strumLine.strums[daNote.noteData].y - (Conductor.songPosition - daNote.strumTime) * (0.45 * SONG.speed)) + daNote.yOffset;
 				daNote.x = strumLine.strums[daNote.noteData].x + daNote.xOffset;
 
 				if (daNote.y > FlxG.height)
@@ -774,9 +787,6 @@ class PlayState extends MusicBeatState
 					notes.remove(daNote, true);
 					daNote.destroy();
 				}
-
-				// WIP interpolation shit? Need to fix the pause issue
-				// daNote.y = (strumLine.y - (songTime - daNote.strumTime) * (0.45 * PlayState.SONG.speed));
 
 				if (daNote.y < -daNote.height)
 				{
@@ -880,7 +890,7 @@ class PlayState extends MusicBeatState
 
 	var endingSong:Bool = false;
 
-	private function popUpScore(strumtime:Float):Void
+	private function popUpScore(daNote:Int, strumtime:Float):Void
 	{
 		var noteDiff:Float = Math.abs(strumtime - Conductor.songPosition);
 		// boyfriend.playAnim('hey');
@@ -913,6 +923,10 @@ class PlayState extends MusicBeatState
 		switch (daRating.toLowerCase()) {
 			case 'sick':
 				++sicks;
+
+				var noteSplash:NoteSplash = splashes.recycle(NoteSplash);
+				noteSplash.splash(daNote, playerStrums.strums[daNote].x, playerStrums.strums[daNote].y);
+				splashes.add(noteSplash);
 			case 'good':
 				++goods;
 			case 'bads':
@@ -1263,7 +1277,7 @@ class PlayState extends MusicBeatState
 		{
 			if (!note.isSustainNote)
 			{
-				popUpScore(note.strumTime);
+				popUpScore(note.noteData, note.strumTime);
 				combo += 1;
 			}
 

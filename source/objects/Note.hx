@@ -1,4 +1,4 @@
-package;
+package objects;
 
 import engine.Styles.StyleHandler;
 import flixel.FlxSprite;
