@@ -41,13 +41,7 @@
 	<classpath name="source" />
 	
 	<assets path="assets/preload" rename='assets' preload='true'/>
-
-	<assets path="assets/music" include="*.mp3" if="web"/>
-	<assets path="assets/music" include="*.ogg" unless="web"/>
-	<assets path="assets/sounds" include="*.mp3" if="web"/>
-	<assets path="assets/sounds" include="*.ogg" unless="web"/>
-	<assets path="assets/songs" include="*.mp3" if="web"/>
-	<assets path="assets/songs" include="*.ogg" unless="web"/>
+	<assets path="assets/shared" rename='assets' preload='false'/>
 
 	<assets path="assets/preload/fonts" embed='true'/>
 	<!-- _______________________________ Libraries ______________________________ -->
