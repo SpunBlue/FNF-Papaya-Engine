@@ -164,8 +164,11 @@ class LatencySubstate extends MusicBeatSubstate
 	{
 		super.close();
 
-		if (Type.getClass(FlxG.state) != PlayState)
+		if (Type.getClass(FlxG.state) != PlayState) {
 			FlxG.sound.playMusic('assets/music/freakyMenu' + TitleState.soundExt);
-		Conductor.changeBPM(102);
+			Conductor.changeBPM(102);
+		}
+		else
+			FlxG.sound.music.stop();
 	}
 }
