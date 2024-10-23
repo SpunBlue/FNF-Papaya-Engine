@@ -59,7 +59,8 @@ class Options
 
     public static function init()
     {
-        FlxG.save.bind('papaya', 'spunblue');
+        // FlxG.save.bind('papaya', 'spunblue');
+        
         var savedOptions:Array<OptionsData> = FlxG.save.data.options;
 
         options = defaultOptions;
@@ -108,6 +109,9 @@ class Options
 			FlxG.drawFramerate = FlxG.updateFramerate = 144;
 		else
 			FlxG.drawFramerate = FlxG.updateFramerate = 60;
+
+        if (FlxG.save.data.latency != null)
+            Conductor.offset = FlxG.save.data.latency;
     }
 
     public static function save()

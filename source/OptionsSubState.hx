@@ -14,7 +14,7 @@ import flixel.FlxSprite;
 
 class OptionsSubState extends MusicBeatSubstate
 {
-	var textMenuItems:Array<String> = ['Controls', 'Gameplay', 'Graphics'];
+	var textMenuItems:Array<String> = ['Controls', 'Gameplay', 'Graphics', 'Audio'];
 	var menuItemGroups:Array<SelectableOptions> = [
 		{
 			group: "Gameplay",
@@ -61,6 +61,7 @@ class OptionsSubState extends MusicBeatSubstate
 
 	var optionCam:FlxCamera;
 
+	var bg:FlxSprite;
 	var optionBackdrop:FlxSprite;
 	var camFollow:FlxObject = new FlxObject();
 	var infoText:Alphabet;
@@ -82,15 +83,15 @@ class OptionsSubState extends MusicBeatSubstate
 		camFollow.x = FlxG.width / 2;
 		optionCam.follow(camFollow, LOCKON, 0.06);
 
-		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
-		bg.alpha = 0.7;
+		bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+		bg.alpha = 0;
 		bg.scrollFactor.set();
 		if (useTransparentBG)
 			add(bg);
 
-		optionBackdrop = new FlxSprite().makeGraphic(432, FlxG.height, FlxColor.BLACK);
+		optionBackdrop = new FlxSprite().makeGraphic(Math.round(FlxG.width / 4), FlxG.height, FlxColor.BLACK);
 		optionBackdrop.alpha = 0.7;
-		optionBackdrop.scrollFactor.set();
+		optionBackdrop.scrollFactor.set(1, 0);
 		add(optionBackdrop);
 
 		infoText = new Alphabet(0, 0, "Green means Enabled, Red means Disabled.", true, false, -24);
@@ -112,11 +113,21 @@ class OptionsSubState extends MusicBeatSubstate
 			FlxTween.tween(optionCam, {alpha: 1}, 0.25);
 	}
 
+	var inButtonRemap:Bool = false; // leave it to me to come up with the most dumbest solutions
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
+		
+		// The idea is that the substate pauses while in the ButtonRemapState, so on the next frame when it's closed, it'll just toggle this shit.
+		if (inButtonRemap) {
+			FlxTween.tween(bg, {alpha: 0}, 0.25);
+			camFollow.x = FlxG.width / 2;
+			innerMenu = false;
 
-		if (controls.BACK) {
+			inButtonRemap = false;
+		}
+
+		if (controls.BACK && !closing) {
 			FlxG.sound.play(Paths.getSound("cancelMenu"));
 
 			if (!innerMenu)
@@ -130,26 +141,35 @@ class OptionsSubState extends MusicBeatSubstate
 				curSelected = lastSelected;
 
 				infoText.visible = false;
+				camFollow.x = FlxG.width / 2;
+				FlxTween.tween(bg, {alpha: 0}, 0.25);
 
 				updateMenuItems();
 			}
 		}
-		else if (controls.ACCEPT) {
+		else if (controls.ACCEPT && !closing) {
 			FlxG.sound.play(Paths.getSound("confirmMenu"));
 
 			if (!innerMenu) {
+				innerMenu = true;
+
 				// Open Inner Option Menu, or Open Substate.
 				switch (optionItems.members[curSelected].text.toLowerCase()) {
 					default:
-						innerMenu = true;
 						lastSelected = curSelected;
-
 						infoText.visible = true;
 
 						createInnerMenuItems(optionItems.members[lastSelected].text);
 					case 'controls':
+						inButtonRemap = true;
 						openSubState(new ButtonRemapSubstate());
+					case 'audio':
+						inButtonRemap = true; // too lazy to change variable name
+						openSubState(new LatencySubstate());
 				}
+
+				FlxTween.tween(bg, {alpha: 0.7}, 0.25);
+				camFollow.x = (FlxG.width / 2) + optionBackdrop.width;
 			}
 			else {
 				var nameOfOption:String = innerOptionItems.members[curSelected].data.nameOfOption;
@@ -158,7 +178,7 @@ class OptionsSubState extends MusicBeatSubstate
 			}
 		}
 
-		if (controls.UP_P || controls.DOWN_P)
+		if ((controls.UP_P || controls.DOWN_P) && !closing)
 		{
 			if (controls.UP_P && curSelected > 0){
 				--curSelected;
@@ -185,7 +205,8 @@ class OptionsSubState extends MusicBeatSubstate
 		optionItems.clear();
 
 		for (i in 0...textMenuItems.length) {
-			var opt = new Alphabet(16, 16 + (96 * i), textMenuItems[i], true, false, -16);
+			var opt = new Alphabet(16, 16 + (96 * i), textMenuItems[i], true, false, -32);
+			opt.scale.set(0.75, 0.75);
 			optionItems.add(opt);
 		}
 
@@ -205,7 +226,8 @@ class OptionsSubState extends MusicBeatSubstate
 			opt.scale.set(0.5, 0.5);
 			
 			opt.screenCenter(X);
-			opt.x += optionBackdrop.width / 2;
+			// opt.x -= FlxG.width / 2;
+			opt.scrollFactor.x = 0;
 
 			opt.data = group[i]; // append the option information
 			innerOptionItems.add(opt);
@@ -241,10 +263,20 @@ class OptionsSubState extends MusicBeatSubstate
 		}
 	}
 
+	var closing:Bool = false;
 	override public function close(){
-		FlxG.cameras.remove(optionCam);
+		if (!closing){
+			closing = true;
 
-		super.close();
+			FlxTween.tween(optionCam, {alpha: 0}, 0.15, {onComplete: function(v){
+				FlxG.cameras.remove(optionCam);
+	
+				close();
+			}});
+		}
+		else {
+			super.close();
+		}
 	}
 }
 

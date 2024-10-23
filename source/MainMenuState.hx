@@ -1,5 +1,6 @@
 package;
 
+import engine.Options;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
@@ -115,7 +116,8 @@ class MainMenuState extends MusicBeatState
 				selectedSomethin = true;
 				FlxG.sound.play('assets/sounds/confirmMenu' + TitleState.soundExt);
 
-				FlxFlicker.flicker(magenta, 1.1, 0.15, false);
+				if (!Options.get('limitFlashing'))
+					FlxFlicker.flicker(magenta, 1.1, 0.15, false);
 
 				menuItems.forEach(function(spr:FlxSprite)
 				{

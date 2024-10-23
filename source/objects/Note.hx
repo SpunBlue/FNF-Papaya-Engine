@@ -34,7 +34,7 @@ class Note extends FlxSprite
 	public var xOffset:Float = 0;
 	public var yOffset:Float = 0;
 
-	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false)
+	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?daStyle:String)
 	{
 		super();
 
@@ -52,6 +52,8 @@ class Note extends FlxSprite
 
 		frames = StyleHandler.giveMeNotes();
 		var style = StyleHandler.curStyle;
+		if (daStyle != null)
+			style = StyleHandler.styles.get(daStyle);
 
 		for (anim in style.noteAnimations){
 			if (anim != null) {

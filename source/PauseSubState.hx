@@ -51,12 +51,20 @@ class PauseSubState extends MusicBeatSubstate
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 	}
 
+	var resetNextFrame:Bool = false;
+
 	override function update(elapsed:Float)
 	{
 		if (pauseMusic.volume < 0.5)
 			pauseMusic.volume += 0.01 * elapsed;
 
 		super.update(elapsed);
+
+		// dumb solutions!!
+		if (resetNextFrame) {
+			FlxG.resetState();
+			resetNextFrame = false; // 100% not necessary lmfao
+		}
 
 		var upP = controls.UP_P;
 		var downP = controls.DOWN_P;
@@ -83,6 +91,7 @@ class PauseSubState extends MusicBeatSubstate
 					FlxG.resetState();
 				case "Options":
 					openSubState(new OptionsSubState(true, false));
+					resetNextFrame = true;
 				case "Exit to menu":
 					FlxG.switchState(new MainMenuState());
 			}

@@ -1,5 +1,6 @@
 package;
 
+import engine.Styles.StyleHandler;
 import objects.Note;
 import objects.ArrowStrums;
 import Alphabet.AlphaCharacter;
@@ -44,6 +45,9 @@ class ButtonRemapSubstate extends MusicBeatSubstate
 		magenta.alpha = 0.7;
 		add(magenta);*/
 
+		if (StyleHandler.styles.get('default') != StyleHandler.curStyle)
+			StyleHandler.curStyle = StyleHandler.styles.get('default');
+
 		notes = new ArrowStrums(Note.swagWidth / 1.2, (realCam.height / 2) - Note.swagWidth / 2);
 		add(notes);
 
@@ -80,6 +84,10 @@ class ButtonRemapSubstate extends MusicBeatSubstate
 				--curSelected;
 			else if ((controls.RIGHT_P || controls.DOWN_P) && curSelected < 3)
 				++curSelected;
+			else {
+				var rand:Float = new FlxRandom().int(1, 3);
+				FlxG.sound.play(Paths.getSound("badnoise" + rand));
+			}
 
 			updateNotes();
 		}

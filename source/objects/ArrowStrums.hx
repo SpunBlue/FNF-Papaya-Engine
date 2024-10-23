@@ -14,11 +14,14 @@ class ArrowStrums extends FlxTypedSpriteGroup<FlxSprite>
     private var pressedOffsets:Map<Int, Array<Float>> = new Map();
     private var confirmOffsets:Map<Int, Array<Float>> = new Map();
 
-    override public function new(x:Float, y:Float, ?style:String = 'default')
+    override public function new(x:Float, y:Float, ?daStyle:String)
     {
         super(x, y, 4);
 
         var style = StyleHandler.curStyle;
+        if (daStyle != null)
+            style = StyleHandler.styles.get(daStyle);
+
 		for (i in 0...4)
 		{
 			var babyArrow:FlxSprite = new FlxSprite();
