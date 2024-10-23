@@ -40,13 +40,19 @@ class Alphabet extends FlxSpriteGroup
 
 	var isBold:Bool = false;
 
-	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = false, typed:Bool = false)
+	public var letters:Array<AlphaCharacter> = [];
+	public var spacingOffset:Float = 0;
+
+	public var data:Dynamic;
+
+	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = false, ?typed:Bool = false, ?spacing:Float = 0)
 	{
 		super(x, y);
 
 		_finalText = text;
 		this.text = text;
 		isBold = bold;
+		spacingOffset = spacing;
 
 		if (text != "")
 		{
@@ -82,7 +88,7 @@ class Alphabet extends FlxSpriteGroup
 			{
 				if (lastSprite != null)
 				{
-					xPos = lastSprite.x + lastSprite.width;
+					xPos = (lastSprite.x + lastSprite.width) + spacingOffset;
 				}
 
 				if (lastWasSpace)
@@ -92,7 +98,7 @@ class Alphabet extends FlxSpriteGroup
 				}
 
 				// var letter:AlphaCharacter = new AlphaCharacter(30 * loopNum, 0);
-				var letter:AlphaCharacter = new AlphaCharacter(xPos, 0);
+				var letter:AlphaCharacter = new AlphaCharacter(xPos , 0);
 
 				if (isBold)
 					letter.createBold(character);
@@ -101,6 +107,7 @@ class Alphabet extends FlxSpriteGroup
 					letter.createLetter(character);
 				}
 
+				letters.push(letter);
 				add(letter);
 
 				lastSprite = letter;
@@ -160,7 +167,7 @@ class Alphabet extends FlxSpriteGroup
 				if (lastSprite != null && !xPosResetted)
 				{
 					lastSprite.updateHitbox();
-					xPos += lastSprite.width + 3;
+					xPos += (lastSprite.width + 3) + spacingOffset;
 					// if (isBold)
 					// xPos -= 80;
 				}
@@ -207,6 +214,7 @@ class Alphabet extends FlxSpriteGroup
 					FlxG.sound.play('assets/sounds/' + daSound + FlxG.random.int(1, 4) + TitleState.soundExt, 0.4);
 				}
 
+				letters.push(letter);
 				add(letter);
 
 				lastSprite = letter;
@@ -245,7 +253,7 @@ class AlphaCharacter extends FlxSprite
 	public function new(x:Float, y:Float)
 	{
 		super(x, y);
-		var tex = FlxAtlasFrames.fromSparrow('assets/images/alphabet.png', 'assets/images/alphabet.xml');
+		var tex = Paths.getSparrow("alphabet");
 		frames = tex;
 
 		antialiasing = true;

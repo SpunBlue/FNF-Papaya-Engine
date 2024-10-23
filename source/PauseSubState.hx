@@ -13,7 +13,7 @@ class PauseSubState extends MusicBeatSubstate
 {
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
-	var menuItems:Array<String> = ['Resume', 'Restart Song', 'Exit to menu'];
+	var menuItems:Array<String> = ['Resume', 'Restart Song', 'Options', 'Exit to menu'];
 	var curSelected:Int = 0;
 
 	var pauseMusic:FlxSound;
@@ -21,6 +21,8 @@ class PauseSubState extends MusicBeatSubstate
 	public function new(x:Float, y:Float)
 	{
 		super();
+
+		persistentUpdate = false;
 
 		pauseMusic = new FlxSound().loadEmbedded('assets/music/breakfast' + TitleState.soundExt, true, true);
 		pauseMusic.volume = 0;
@@ -49,12 +51,20 @@ class PauseSubState extends MusicBeatSubstate
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 	}
 
+	var resetNextFrame:Bool = false;
+
 	override function update(elapsed:Float)
 	{
 		if (pauseMusic.volume < 0.5)
 			pauseMusic.volume += 0.01 * elapsed;
 
 		super.update(elapsed);
+
+		// dumb solutions!!
+		if (resetNextFrame) {
+			FlxG.resetState();
+			resetNextFrame = false; // 100% not necessary lmfao
+		}
 
 		var upP = controls.UP_P;
 		var downP = controls.DOWN_P;
@@ -79,6 +89,9 @@ class PauseSubState extends MusicBeatSubstate
 					close();
 				case "Restart Song":
 					FlxG.resetState();
+				case "Options":
+					openSubState(new OptionsSubState(true, false));
+					resetNextFrame = true;
 				case "Exit to menu":
 					FlxG.switchState(new MainMenuState());
 			}

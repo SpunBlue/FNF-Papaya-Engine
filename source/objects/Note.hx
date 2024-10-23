@@ -1,5 +1,6 @@
-package;
+package objects;
 
+import engine.Styles.StyleHandler;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.math.FlxMath;
@@ -9,6 +10,8 @@ using StringTools;
 
 class Note extends FlxSprite
 {
+	public static var swagWidth:Float = 160 * 0.7;
+
 	public var strumTime:Float = 0;
 
 	public var mustPress:Bool = false;
@@ -23,15 +26,19 @@ class Note extends FlxSprite
 
 	public var noteScore:Float = 1;
 
-	public static var swagWidth:Float = 160 * 0.7;
 	public static var PURP_NOTE:Int = 0;
 	public static var GREEN_NOTE:Int = 2;
 	public static var BLUE_NOTE:Int = 1;
 	public static var RED_NOTE:Int = 3;
 
-	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false)
+	public var xOffset:Float = 0;
+	public var yOffset:Float = 0;
+
+	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?daStyle:String)
 	{
 		super();
+
+		visible = false;
 
 		if (prevNote == null)
 			prevNote = this;
@@ -39,31 +46,48 @@ class Note extends FlxSprite
 		this.prevNote = prevNote;
 		isSustainNote = sustainNote;
 
-		x += 50;
-		// MAKE SURE ITS DEFINITELY OFF SCREEN?
-		y -= 2000;
 		this.strumTime = strumTime;
 
 		this.noteData = noteData;
 
-		var daStage:String = PlayState.curStage;
+		frames = StyleHandler.giveMeNotes();
+		var style = StyleHandler.curStyle;
+		if (daStyle != null)
+			style = StyleHandler.styles.get(daStyle);
 
-		frames = FlxAtlasFrames.fromSparrow('assets/images/NOTE_assets.png', 'assets/images/NOTE_assets.xml');
+		for (anim in style.noteAnimations){
+			if (anim != null) {
+				var idleFPS:Int = 24;
+				var holdFPS:Int = 24;
+				var holdendsFPS:Int = 24;
 
-		animation.addByPrefix('greenScroll', 'green0');
-		animation.addByPrefix('redScroll', 'red0');
-		animation.addByPrefix('blueScroll', 'blue0');
-		animation.addByPrefix('purpleScroll', 'purple0');
+				if (anim.idle.fps != null)
+					idleFPS = anim.idle.fps;
+				if (anim.holding.fps != null)
+					holdFPS = anim.holding.fps;
+				if (anim.holdends.fps != null)
+					holdendsFPS = anim.holdends.fps;
 
-		animation.addByPrefix('purpleholdend', 'pruple end hold');
-		animation.addByPrefix('greenholdend', 'green hold end');
-		animation.addByPrefix('redholdend', 'red hold end');
-		animation.addByPrefix('blueholdend', 'blue hold end');
-
-		animation.addByPrefix('purplehold', 'purple hold piece');
-		animation.addByPrefix('greenhold', 'green hold piece');
-		animation.addByPrefix('redhold', 'red hold piece');
-		animation.addByPrefix('bluehold', 'blue hold piece');
+				switch (anim.direction) {
+					default:
+						animation.addByPrefix('purpleScroll', anim.idle.prefix, idleFPS);
+						animation.addByPrefix('purplehold', anim.holding.prefix, holdFPS);
+						animation.addByPrefix('purpleholdend', anim.holdends.prefix, holdendsFPS);
+					case 1:
+						animation.addByPrefix('blueScroll', anim.idle.prefix, idleFPS);
+						animation.addByPrefix('bluehold', anim.holding.prefix, holdFPS);
+						animation.addByPrefix('blueholdend', anim.holdends.prefix, holdendsFPS);
+					case 2:
+						animation.addByPrefix('greenScroll', anim.idle.prefix, idleFPS);
+						animation.addByPrefix('greenhold', anim.holding.prefix, holdFPS);
+						animation.addByPrefix('greenholdend', anim.holdends.prefix, holdendsFPS);
+					case 3:
+						animation.addByPrefix('redScroll', anim.idle.prefix, idleFPS);
+						animation.addByPrefix('redhold', anim.holding.prefix, holdFPS);
+						animation.addByPrefix('redholdend', anim.holdends.prefix, holdendsFPS);
+				}	
+			}
+		}
 
 		setGraphicSize(Std.int(width * 0.7));
 		updateHitbox();
@@ -72,16 +96,12 @@ class Note extends FlxSprite
 		switch (noteData)
 		{
 			case 0:
-				x += swagWidth * 0;
 				animation.play('purpleScroll');
 			case 1:
-				x += swagWidth * 1;
 				animation.play('blueScroll');
 			case 2:
-				x += swagWidth * 2;
 				animation.play('greenScroll');
 			case 3:
-				x += swagWidth * 3;
 				animation.play('redScroll');
 		}
 
@@ -92,8 +112,7 @@ class Note extends FlxSprite
 			noteScore * 0.2;
 			alpha = 0.6;
 
-			x += width / 2;
-
+			xOffset += width / 2;
 			switch (noteData)
 			{
 				case 2:
@@ -107,11 +126,8 @@ class Note extends FlxSprite
 			}
 
 			updateHitbox();
-
-			x -= width / 2;
-
-			if (PlayState.curStage.startsWith('school'))
-				x += 30;
+			xOffset -= width / 2;
+			yOffset -= 10;
 
 			if (prevNote.isSustainNote)
 			{
@@ -129,7 +145,6 @@ class Note extends FlxSprite
 
 				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed;
 				prevNote.updateHitbox();
-				// prevNote.setGraphicSize();
 			}
 		}
 	}

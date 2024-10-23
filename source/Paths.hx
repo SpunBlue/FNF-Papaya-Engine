@@ -9,7 +9,6 @@ class Paths
      */
     public static function getImage(path:String):String
     {
-        trace('assets/images/$path.png');
         return 'assets/images/$path.png';
     }
 
@@ -32,6 +31,16 @@ class Paths
     public static function getSong(songName:String, file:String):String
     {
         return 'assets/songs/$songName/$file${TitleState.soundExt}';
+    }
+
+    /**
+     * Get Sound
+     * @param soundName Name of Sound
+     * @return String Path to Sound `assets/sounds/test/inst.ogg`;
+     */
+     public static function getSound(soundName:String):String
+    {
+        return 'assets/sounds/$soundName${TitleState.soundExt}';
     }
 
     /**

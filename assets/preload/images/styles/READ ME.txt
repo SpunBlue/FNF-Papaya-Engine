@@ -1,0 +1,2 @@
+Your Note Assets must have a frame size of 160x160. This is not your spritesheet size.
+Note Splashes must have the same "prefix" as the defaults, but you can have as many of them as you want. Just change the "impactAmount" variable.
