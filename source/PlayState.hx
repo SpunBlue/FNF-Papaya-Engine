@@ -1,13 +1,20 @@
 package;
 
+import engine.Song;
+import engine.Highscore;
+import engine.Paths;
+import engine.Conductor;
+import objects.HealthIcon;
+import objects.Boyfriend;
+import objects.Character;
 import flixel.math.FlxRandom;
 import engine.Options;
 import objects.NoteSplash;
 import objects.Note;
 import engine.Styles.StyleHandler;
 import objects.ArrowStrums;
-import Section.SwagSection;
-import Song.SwagSong;
+import engine.Section.SwagSection;
+import engine.Song.SwagSong;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -196,9 +203,11 @@ class PlayState extends MusicBeatState
 
 		splashes = new FlxTypedGroup<NoteSplash>();
 
-		var tempSplash:NoteSplash = new NoteSplash();
-		splashes.add(tempSplash);
-		tempSplash.kill();
+		if (StyleHandler.curStyle.enableSplashes) {
+			var tempSplash:NoteSplash = new NoteSplash();
+			splashes.add(tempSplash);
+			tempSplash.kill();
+		}
 
 		add(splashes);
 
@@ -273,7 +282,7 @@ class PlayState extends MusicBeatState
 		inCutscene = false;
 
 		startedCountdown = true;
-		Conductor.songPosition = 0;
+		Conductor.songPosition = Conductor.offset * -1;
 		Conductor.songPosition -= Conductor.crochet * 5;
 
 		var swagCounter:Int = 0;
@@ -613,7 +622,7 @@ class PlayState extends MusicBeatState
 
 			// my head hurts
 			Conductor.songPosition += FlxG.elapsed * 1000;
-			Conductor.songPosition -= Conductor.songPosition - (FlxG.sound.music.time - Conductor.offset);
+			// Conductor.songPosition -= Conductor.songPosition - (FlxG.sound.music.time - Conductor.offset);
 		}
 
 
@@ -621,9 +630,9 @@ class PlayState extends MusicBeatState
 		if (generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null)
 		{
 			if (camFollow.x != dad.getMidpoint().x + 150 && !PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection)
-				camFollow.setPosition(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
+				camFollow.setPosition(dad.getMidpoint().x + dad.camOffsets[0], dad.getMidpoint().y + dad.camOffsets[1]);
 			else if (PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection && camFollow.x != boyfriend.getMidpoint().x - 100)
-				camFollow.setPosition(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
+				camFollow.setPosition(boyfriend.getMidpoint().x + boyfriend.camOffsets[0], boyfriend.getMidpoint().y + boyfriend.camOffsets[1]);
 		}
 
 		if (camZooming)
@@ -898,7 +907,7 @@ class PlayState extends MusicBeatState
 		var score:Int = 300;
 		var daRating:String = "sick";
 
-		var safeZones:Array<Float> = [0.6, 0.4, 0.275]; // The starting value, and the next in line is the end value. So 0.9 - 0.74 is a Shit, but a 0.75 - 0.19 is a bad.
+		var safeZones:Array<Float> = [0.6, 0.45, 0.3]; // The starting value, and the next in line is the end value. So 1 - 0.74 is a Shit, but a 0.75 - 0.19 is a bad.
 		var ratings:Array<String> = ['shit', 'bad', 'good'];
 
 		var rating:FlxSprite = new FlxSprite();
@@ -923,9 +932,11 @@ class PlayState extends MusicBeatState
 			case 'sick':
 				++sicks;
 
-				var noteSplash:NoteSplash = splashes.recycle(NoteSplash);
-				noteSplash.splash(daNote, playerStrums.strums[daNote].x, playerStrums.strums[daNote].y);
-				splashes.add(noteSplash);
+				if (StyleHandler.curStyle.enableSplashes) {
+					var noteSplash:NoteSplash = splashes.recycle(NoteSplash);
+					noteSplash.splash(daNote, playerStrums.strums[daNote].x, playerStrums.strums[daNote].y);
+					splashes.add(noteSplash);
+				}
 			case 'good':
 				++goods;
 			case 'bads':

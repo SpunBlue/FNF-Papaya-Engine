@@ -1,5 +1,6 @@
 package;
 
+import engine.Paths;
 import flixel.text.FlxText;
 import engine.Options;
 import flixel.FlxObject;
@@ -11,6 +12,7 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.util.FlxColor;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import objects.Alphabet;
 
 class OptionsSubState extends MusicBeatSubstate
 {

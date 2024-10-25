@@ -1,5 +1,6 @@
 package objects;
 
+import engine.Conductor;
 import engine.Styles.StyleHandler;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -91,7 +92,7 @@ class Note extends FlxSprite
 
 		setGraphicSize(Std.int(width * 0.7));
 		updateHitbox();
-		antialiasing = true;
+		antialiasing = style.antialiasing;
 
 		switch (noteData)
 		{

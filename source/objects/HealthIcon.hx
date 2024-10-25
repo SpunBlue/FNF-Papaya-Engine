@@ -1,13 +1,17 @@
-package;
+package objects;
 
+import engine.Paths;
+import openfl.Assets;
 import flixel.FlxSprite;
 
 class HealthIcon extends FlxSprite
-{
+{	
+	public var target:Alphabet;
+
 	public function new(char:String = 'bf', isPlayer:Bool = false)
 	{
 		super();
-		loadGraphic('assets/images/iconGrid.png', true, 150, 150);
+		/*loadGraphic('assets/images/iconGrid.png', true, 150, 150);
 
 		antialiasing = true;
 		animation.add('bf', [0, 1], 0, false, isPlayer);
@@ -30,6 +34,23 @@ class HealthIcon extends FlxSprite
 		animation.add('monster', [19, 20], 0, false, isPlayer);
 		animation.add('monster-christmas', [19, 20], 0, false, isPlayer);
 		animation.play(char);
-		scrollFactor.set();
+		scrollFactor.set();*/
+
+		if (Assets.exists(Paths.getImage('icons/$char')))
+			loadGraphic(Paths.getImage('icons/$char'), true, 150, 150);
+		else
+			loadGraphic(Paths.getImage('icons/default'));
+
+		antialiasing = true;
+		animation.add('$char', [0, 1], 0, false, isPlayer);
+		animation.play('$char');
+	}
+
+	override public function update(elapsed)
+	{
+		if (target != null) {
+			setPosition(target.x + target.width, target.y - (this.height / 4));
+			this.alpha = target.alpha;
+		}
 	}
 }

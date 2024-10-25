@@ -28,7 +28,7 @@ class ArrowStrums extends FlxTypedSpriteGroup<FlxSprite>
 
 			babyArrow.frames = StyleHandler.giveMeStrums();
 
-			babyArrow.antialiasing = true;
+			babyArrow.antialiasing = style.antialiasing;
 			babyArrow.setGraphicSize(Std.int(babyArrow.width * 0.7));
 
             for (anim in style.strumAnimations) {
@@ -49,9 +49,20 @@ class ArrowStrums extends FlxTypedSpriteGroup<FlxSprite>
                     babyArrow.animation.addByPrefix('pressed', anim.pressed.prefix, pressedFPS, false);
                     babyArrow.animation.addByPrefix('confirm', anim.confirm.prefix, confirmFPS, false);
 
-                    idleOffsets.set(i, [anim.idle.offsetX, anim.idle.offsetY]);
-                    pressedOffsets.set(i, [anim.pressed.offsetX, anim.pressed.offsetY]);
-                    confirmOffsets.set(i, [anim.confirm.offsetX, anim.confirm.offsetY]);
+                    if (anim.idle.offsets != null)
+                        idleOffsets.set(i, [anim.idle.offsets[0], anim.idle.offsets[1]]);
+                    else
+                        idleOffsets.set(i, [0, 0]);
+
+                    if (anim.pressed.offsets != null)
+                        pressedOffsets.set(i, [anim.pressed.offsets[0], anim.pressed.offsets[1]]);
+                    else
+                        pressedOffsets.set(i, [0, 0]);
+                    
+                    if (anim.confirm.offsets != null)
+                        confirmOffsets.set(i, [anim.confirm.offsets[0], anim.confirm.offsets[1]]);
+                    else
+                        confirmOffsets.set(i, [0, 0]);
 
                     break;
                 }

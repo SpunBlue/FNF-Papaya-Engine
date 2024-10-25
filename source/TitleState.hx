@@ -24,6 +24,8 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.app.Application;
 import openfl.Assets;
+import objects.Alphabet;
+import engine.Conductor;
 
 using StringTools;
 

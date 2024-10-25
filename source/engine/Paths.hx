@@ -1,3 +1,5 @@
+package engine;
+
 import flixel.graphics.frames.FlxAtlasFrames;
 
 class Paths

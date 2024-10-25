@@ -1,9 +1,11 @@
 package;
 
+import engine.CoolUtil;
 import objects.Note;
-import Section.SwagSection;
-import Song.SwagSong;
-import Conductor.BPMChangeEvent;
+import engine.Section;
+import engine.Song;
+import engine.Conductor;
+import objects.HealthIcon;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.display.FlxGridOverlay;

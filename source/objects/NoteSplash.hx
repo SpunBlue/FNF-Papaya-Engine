@@ -34,7 +34,7 @@ class NoteSplash extends FlxSprite {
 
     public function splash(note:Int = 0, x:Float, y:Float)
     {
-        this.setPosition(x + properties.offsetX, y + properties.offsetY);
+        this.setPosition(x + properties.offsets[0], y + properties.offsets[1]);
 
         var color:String = null;
         switch (note) {
@@ -58,8 +58,7 @@ class NoteSplash extends FlxSprite {
 typedef SplashProperties =
 {
     var fps:Int;
-    var offsetX:Float;
-    var offsetY:Float;
+    var offsets:Array<Float>;
     var alpha:Float;
     var impactAmount:Int;
 }

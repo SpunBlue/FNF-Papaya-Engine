@@ -49,6 +49,8 @@ typedef StyleData =
     var ?splashesImagePath:String;
     var ?splashProperties:SplashProperties;
 
+    var antialiasing:Bool;
+
 	var strumAnimations:Array<StrumShit>;
 	var noteAnimations:Array<NoteShit>;
 
@@ -77,16 +79,5 @@ typedef MinimalAnimData =
 {
 	var prefix:String;
 	var ?fps:Int;
-	var ?offsetX:Float;
-	var ?offsetY:Float;
-}
-
-typedef AnimationData =
-{
-	var prefix:String;
-	var name:String;
-	var fps:Int;
-	var ?loop:Bool;
-	var ?offsetX:Float;
-	var ?offsetY:Float;
+	var ?offsets:Array<Float>;
 }

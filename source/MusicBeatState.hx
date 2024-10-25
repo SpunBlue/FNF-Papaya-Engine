@@ -1,11 +1,12 @@
 package;
 
-import Conductor.BPMChangeEvent;
+import engine.Conductor;
 import flixel.FlxG;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.ui.FlxUIState;
 import flixel.math.FlxRect;
 import flixel.util.FlxTimer;
+import engine.Controls;
 
 class MusicBeatState extends FlxUIState
 {

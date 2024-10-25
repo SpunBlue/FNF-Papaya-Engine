@@ -1,5 +1,8 @@
 package;
 
+import engine.Highscore;
+import engine.Song;
+import objects.MenuCharacter;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.transition.FlxTransitionableState;
@@ -12,6 +15,7 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.net.curl.CURLCode;
+import objects.MenuItem;
 
 using StringTools;
 
