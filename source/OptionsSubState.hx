@@ -36,7 +36,7 @@ class OptionsSubState extends MusicBeatSubstate
 			options: [
 				{
 					text: "Increase Max FPS",
-					nameOfOption: "144FPS"
+					nameOfOption: "maxFPS"
 				},
 				{
 					text: "Limit Flashing Lights",

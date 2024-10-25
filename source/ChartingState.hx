@@ -1,5 +1,6 @@
 package;
 
+import engine.Paths;
 import engine.CoolUtil;
 import objects.Note;
 import engine.Section;
@@ -56,7 +57,7 @@ class ChartingState extends MusicBeatState
 	var bpmTxt:FlxText;
 
 	var strumLine:FlxSprite;
-	var curSong:String = 'Dadbattle';
+	var curSong:String = 'Dad battle';
 	var amountSteps:Int = 0;
 	var bullshitUI:FlxGroup;
 
@@ -79,7 +80,7 @@ class ChartingState extends MusicBeatState
 	**/
 	var curSelectedNote:Array<Dynamic>;
 
-	var tempBpm:Int = 0;
+	var tempBpm:Float = 0;
 
 	var vocals:FlxSound;
 
@@ -89,6 +90,11 @@ class ChartingState extends MusicBeatState
 	override function create()
 	{
 		curSection = lastSection;
+
+		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getImage('menuDesat'));
+		bg.color = FlxColor.GRAY;
+		bg.scrollFactor.set();
+		add(bg);
 
 		gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * 8, GRID_SIZE * 16);
 		add(gridBG);
@@ -118,14 +124,16 @@ class ChartingState extends MusicBeatState
 		else
 		{
 			_song = {
-				song: 'Test',
+				song: 'Tutorial',
 				notes: [],
 				bpm: 150,
 				needsVoices: true,
 				player1: 'bf',
 				player2: 'dad',
+				girlfriend: 'gf',
 				speed: 1,
-				validScore: false
+				validScore: true,
+				visualStyle: 'default'
 			};
 		}
 
@@ -239,8 +247,21 @@ class ChartingState extends MusicBeatState
 		{
 			_song.player2 = characters[Std.parseInt(character)];
 		});
-
 		player2DropDown.selectedLabel = _song.player2;
+
+		var gfDropDown = new FlxUIDropDownMenu(10, 140, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
+		{
+			_song.girlfriend = characters[Std.parseInt(character)];
+		});
+		gfDropDown.selectedLabel = _song.girlfriend;
+
+		var styles:Array<String> = CoolUtil.coolTextFile(Paths.getTxt('visualStyleList'));
+
+		var styleDropDown = new FlxUIDropDownMenu(140, 140, FlxUIDropDownMenu.makeStrIdLabelArray(styles, true), function(style:String)
+		{
+			_song.visualStyle = styles[Std.parseInt(style)];
+		});
+		styleDropDown.selectedLabel = _song.girlfriend;
 
 		var tab_group_song = new FlxUI(null, UI_box);
 		tab_group_song.name = "Song";
@@ -256,6 +277,8 @@ class ChartingState extends MusicBeatState
 		tab_group_song.add(stepperSpeed);
 		tab_group_song.add(player1DropDown);
 		tab_group_song.add(player2DropDown);
+		tab_group_song.add(gfDropDown);
+		tab_group_song.add(styleDropDown);
 
 		UI_box.addGroup(tab_group_song);
 		UI_box.scrollFactor.set();
@@ -353,10 +376,10 @@ class ChartingState extends MusicBeatState
 			// vocals.stop();
 		}
 
-		FlxG.sound.playMusic('assets/music/' + daSong + "_Inst" + TitleState.soundExt, 0.6);
+		FlxG.sound.playMusic(Paths.getSong(daSong.toLowerCase(), 'Inst'), 0.6);
 
 		// WONT WORK FOR TUTORIAL OR TEST SONG!!! REDO LATER
-		vocals = new FlxSound().loadEmbedded("assets/music/" + daSong + "_Voices" + TitleState.soundExt);
+		vocals = new FlxSound().loadEmbedded(Paths.getSong(daSong.toLowerCase(), 'Voices'));
 		FlxG.sound.list.add(vocals);
 
 		FlxG.sound.music.pause();
@@ -459,7 +482,7 @@ class ChartingState extends MusicBeatState
 
 	function sectionStartTime():Float
 	{
-		var daBPM:Int = _song.bpm;
+		var daBPM:Float = _song.bpm;
 		var daPos:Float = 0;
 		for (i in 0...curSection)
 		{
@@ -795,13 +818,16 @@ class ChartingState extends MusicBeatState
 	{
 		if (check_mustHitSection.checked)
 		{
-			leftIcon.animation.play('bf');
-			rightIcon.animation.play('dad');
+			/*leftIcon.animation.play('bf');
+			rightIcon.animation.play('dad');*/
+
+			leftIcon.changeIcon('bf');
+			rightIcon.changeIcon('dad');
 		}
 		else
 		{
-			leftIcon.animation.play('dad');
-			rightIcon.animation.play('bf');
+			leftIcon.changeIcon('dad');
+			rightIcon.changeIcon('bf');
 		}
 	}
 
@@ -833,7 +859,7 @@ class ChartingState extends MusicBeatState
 		else
 		{
 			//get last bpm
-			var daBPM:Int = _song.bpm;
+			var daBPM:Float = _song.bpm;
 			for (i in 0...curSection)
 				if (_song.notes[i].changeBPM)
 					daBPM = _song.notes[i].bpm;
@@ -866,6 +892,7 @@ class ChartingState extends MusicBeatState
 			note.updateHitbox();
 			note.x = Math.floor(daNoteInfo * GRID_SIZE);
 			note.y = Math.floor(getYfromStrum((daStrumTime - sectionStartTime()) % (Conductor.stepCrochet * _song.notes[curSection].lengthInSteps)));
+			note.visible = true;
 
 			curRenderedNotes.add(note);
 

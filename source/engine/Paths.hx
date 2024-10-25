@@ -54,4 +54,13 @@ class Paths
     {
         return 'assets/data/$path.json';
     }
+
+    /**
+     * Get TXT
+     * @param path 
+     * @return String Path to TXT `assets/data/test.txt`;
+     */
+    public static function getTxt(path:String) {
+        return 'assets/data/$path.txt';
+    }
 }

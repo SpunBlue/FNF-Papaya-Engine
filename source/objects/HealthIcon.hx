@@ -7,10 +7,16 @@ import flixel.FlxSprite;
 class HealthIcon extends FlxSprite
 {	
 	public var target:Alphabet;
+	var isPlayer:Bool = false;
 
 	public function new(char:String = 'bf', isPlayer:Bool = false)
 	{
 		super();
+
+		this.isPlayer = isPlayer;
+
+		changeIcon(char);
+
 		/*loadGraphic('assets/images/iconGrid.png', true, 150, 150);
 
 		antialiasing = true;
@@ -35,15 +41,6 @@ class HealthIcon extends FlxSprite
 		animation.add('monster-christmas', [19, 20], 0, false, isPlayer);
 		animation.play(char);
 		scrollFactor.set();*/
-
-		if (Assets.exists(Paths.getImage('icons/$char')))
-			loadGraphic(Paths.getImage('icons/$char'), true, 150, 150);
-		else
-			loadGraphic(Paths.getImage('icons/default'));
-
-		antialiasing = true;
-		animation.add('$char', [0, 1], 0, false, isPlayer);
-		animation.play('$char');
 	}
 
 	override public function update(elapsed)
@@ -52,5 +49,17 @@ class HealthIcon extends FlxSprite
 			setPosition(target.x + target.width, target.y - (this.height / 4));
 			this.alpha = target.alpha;
 		}
+	}
+
+	public function changeIcon(character:String)
+	{
+		if (Assets.exists(Paths.getImage('icons/$character')))
+			loadGraphic(Paths.getImage('icons/$character'), true, 150, 150);
+		else
+			loadGraphic(Paths.getImage('icons/default'));
+
+		antialiasing = true;
+		animation.add('$character', [0, 1], 0, false, isPlayer);
+		animation.play('$character');
 	}
 }
