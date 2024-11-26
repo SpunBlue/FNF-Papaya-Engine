@@ -6,11 +6,12 @@
     "enableSplashes": true,
     "splashesImagePath": "noteSplashes",
     "splashProperties": {
-        "offsetX": -80,
-        "offsetY": -96,
+        "offsets": [-80, -96],
         "alpha": 0.7,
         "impactAmount": 2
     },
+
+    "antialiasing": true,
 
     "numDirectoryPath": "nums",
     "ratingsDirectoryPath": "ratings",
@@ -30,8 +31,7 @@
             "confirm": {
                 "prefix": "left confirm",
                 "fps": 24,
-                "offsetX": -13,
-                "offsetY": -13
+                "offsets": [-13, -13]
             }
         },
         {
@@ -47,8 +47,7 @@
             "confirm": {
                 "prefix": "down confirm",
                 "fps": 24,
-                "offsetX": -15,
-                "offsetY": -10
+                "offsets": [-15, -10]
             }
         },
         {
@@ -64,8 +63,7 @@
             "confirm": {
                 "prefix": "up confirm",
                 "fps": 24,
-                "offsetX": -13,
-                "offsetY": -13
+                "offsets": [-13, -13]
             }
         },
         {
@@ -81,8 +79,7 @@
             "confirm": {
                 "prefix": "right confirm",
                 "fps": 24,
-                "offsetX": -13,
-                "offsetY": -13
+                "offsets": [-13, -13]
             }
         }
     ],

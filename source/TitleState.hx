@@ -24,6 +24,8 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.app.Application;
 import openfl.Assets;
+import objects.Alphabet;
+import engine.Conductor;
 
 using StringTools;
 
@@ -41,6 +43,8 @@ class TitleState extends MusicBeatState
 	var curWacky:Array<String> = [];
 
 	var wackyImage:FlxSprite;
+
+	final chartEditor:Bool = false;
 
 	override public function create():Void
 	{
@@ -62,7 +66,7 @@ class TitleState extends MusicBeatState
 			startIntro();
 		});
 
-		Conductor.changeBPM(102);
+		// Conductor.changeBPM(102);
 	}
 
 	var logoBl:FlxSprite;
@@ -85,6 +89,9 @@ class TitleState extends MusicBeatState
 
 			transIn = FlxTransitionableState.defaultTransIn;
 			transOut = FlxTransitionableState.defaultTransOut;
+
+			if (chartEditor)
+				FlxG.switchState(new ChartingState());
 
 			FlxG.sound.playMusic('assets/music/freakyMenu' + TitleState.soundExt, 0);
 

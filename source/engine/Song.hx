@@ -1,6 +1,6 @@
-package;
+package engine;
 
-import Section.SwagSection;
+import engine.Section.SwagSection;
 import haxe.Json;
 import haxe.format.JsonParser;
 import lime.utils.Assets;
@@ -10,26 +10,35 @@ using StringTools;
 typedef SwagSong =
 {
 	var song:String;
+	/**
+	 * SECTIONS, NOT NOTES TOO LAZY TO FIX.
+	 */
 	var notes:Array<SwagSection>;
-	var bpm:Int;
+	var bpm:Float;
 	var needsVoices:Bool;
 	var speed:Float;
 
 	var player1:String;
 	var player2:String;
+	var girlfriend:String;
+
 	var validScore:Bool;
+	var visualStyle:String;
 }
 
 class Song
 {
 	public var song:String;
 	public var notes:Array<SwagSection>;
-	public var bpm:Int;
+	public var bpm:Float;
 	public var needsVoices:Bool = true;
 	public var speed:Float = 1;
 
 	public var player1:String = 'bf';
 	public var player2:String = 'dad';
+	public var girlfriend:String = 'gf';
+
+	public var visualStyle:String;
 
 	public function new(song, notes, bpm)
 	{

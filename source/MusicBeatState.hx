@@ -1,11 +1,12 @@
 package;
 
-import Conductor.BPMChangeEvent;
+import engine.Conductor;
 import flixel.FlxG;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.ui.FlxUIState;
 import flixel.math.FlxRect;
 import flixel.util.FlxTimer;
+import engine.Controls;
 
 class MusicBeatState extends FlxUIState
 {
@@ -69,7 +70,11 @@ class MusicBeatState extends FlxUIState
 				lastChange = Conductor.bpmChangeMap[i];
 		}
 
-		curStep = lastChange.stepTime + Math.floor((Conductor.songPosition - lastChange.songTime) / Conductor.stepCrochet);
+		var newStep = lastChange.stepTime + Math.floor((Conductor.songPosition - lastChange.songTime) / Conductor.stepCrochet);
+		if (newStep > curStep) {
+			lastStep = curStep;
+			curStep = newStep;
+		}
 	}
 
 	public function stepHit():Void

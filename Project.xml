@@ -2,7 +2,7 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin'" file="Papaya" packageName="com.SpunBlue.fnfpe" main="Main" version="0.1.0 Alpha - GameBanana Pre-Release" company="SpunBlue" />
+	<app title="Friday Night Funkin'" file="Papaya" packageName="com.SpunBlue.fnfpe" main="Main" version="0.1.0 Alpha" company="SpunBlue" />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
 	<set name="APP_ID" value="0x0100f6c013bbc000" />
@@ -41,9 +41,17 @@
 	<classpath name="source" />
 	
 	<assets path="assets/preload" rename='assets' preload='true'/>
-	<assets path="assets/shared" rename='assets' preload='false'/>
+	<!--These are preloaded as well, I just can't put it in the preload directory without it copying the mp3 files-->
+	<assets path="assets/sounds" preload='true' exclude="*.ogg" if="web"/>
+	<assets path="assets/sounds" preload='true' exclude="*.mp3" unless="web"/>
 
-	<assets path="assets/preload/fonts" embed='true'/>
+	<assets path="assets/images" preload='false'/>
+	<assets path="assets/music" preload='false' exclude="*.ogg" if="web"/>
+	<assets path="assets/music" preload='false' exclude="*.mp3" unless="web"/>
+	<assets path="assets/songs" preload='false' exclude="*.ogg" if="web"/>
+	<assets path="assets/songs" preload='false' exclude="*.mp3" unless="web"/>
+
+	<assets path="assets/fonts" preload="true" embed='true'/>
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<haxelib name="flixel" />

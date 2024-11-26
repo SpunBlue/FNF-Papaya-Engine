@@ -1,9 +1,10 @@
 package;
 
+import engine.Controls;
+import engine.Paths;
 import engine.Styles.StyleHandler;
 import objects.Note;
 import objects.ArrowStrums;
-import Alphabet.AlphaCharacter;
 import flixel.math.FlxRandom;
 import flixel.input.keyboard.FlxKeyList;
 import flixel.input.keyboard.FlxKey;
@@ -15,6 +16,7 @@ import flixel.FlxG;
 import flixel.util.FlxColor;
 import flixel.FlxCamera;
 import flixel.FlxSubState;
+import objects.Alphabet;
 
 class ButtonRemapSubstate extends MusicBeatSubstate
 {

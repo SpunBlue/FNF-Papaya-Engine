@@ -12,7 +12,7 @@ class Options
 {
     public static final defaultOptions:Array<OptionsData> = [
         {
-            name: "144FPS",
+            name: "maxFPS",
             toggle: true
         },
         {
@@ -24,20 +24,12 @@ class Options
             toggle: true
         },
         {
-            name: "limitFlashing",
-            toggle: false
-        },
-        /*{
-            name: "disableAntialiasing",
-            toggle: false
-        },*/
-        {
-            name: "forceDefaultStyle",
+            name: "downscroll",
             toggle: false
         }
     ];
 
-    public static var options:Array<OptionsData> = [];
+    /*public static var options:Array<OptionsData> = [];*/
     public static var controlScheme:Array<ControlScheme> = [
         {
             input: "left",
@@ -61,7 +53,7 @@ class Options
     {
         // FlxG.save.bind('papaya', 'spunblue');
         
-        var savedOptions:Array<OptionsData> = FlxG.save.data.options;
+        /*var savedOptions:Array<OptionsData> = FlxG.save.data.options;
 
         options = defaultOptions;
         if (savedOptions != null) {
@@ -84,10 +76,23 @@ class Options
                 trace('Saved Options are invalid.');
                 FlxG.save.data.options = null;
             }
+        }*/
+
+        /*if (get('safe') == null || get('safe') == false)
+        {
+            for (option in defaultOptions)
+                set(option.name, option.toggle);
+
+            set('safe', true);
+        }*/
+
+        for (option in defaultOptions) {
+            if (get(option.name) == null)
+                set(option.name, option.toggle);
         }
         
         var savedControlScheme:Array<ControlScheme> = FlxG.save.data.controlScheme;
-        if (savedControlScheme != null && savedControlScheme.length == controlScheme.length)
+        if (savedControlScheme != null/*&& savedControlScheme.length == controlScheme.length*/)
             controlScheme = FlxG.save.data.controlScheme;
         else {
             trace('Saved Keybinds are invalid.');
@@ -105,7 +110,7 @@ class Options
      */
     public static function checkOptions()
     {
-        if (Options.get('144FPS'))
+        if (get('maxFPS'))
 			FlxG.drawFramerate = FlxG.updateFramerate = 144;
 		else
 			FlxG.drawFramerate = FlxG.updateFramerate = 60;
@@ -116,13 +121,12 @@ class Options
 
     public static function save()
     {   
-        FlxG.save.data.options = options;
         FlxG.save.data.controlScheme = controlScheme;
 
         FlxG.save.flush();
     }
 
-    public static function set(name:String, toggle:Bool)
+    /*public static function set(name:String, toggle:Bool)
     {
         for (option in options){
             if (option.name.toLowerCase() == name.toLowerCase()){
@@ -145,6 +149,17 @@ class Options
 
         trace('Could not locate option: $name.');
         return false;
+    }*/
+
+    public static function set(name:String, data:Dynamic)
+    {
+        Reflect.setField(FlxG.save.data, name, data);
+        checkOptions();
+    }
+
+    public static function get(name:String):Dynamic
+    {
+        return Reflect.field(FlxG.save.data, name);
     }
 }
 

@@ -1,5 +1,7 @@
 package;
 
+import engine.Paths;
+import engine.Conductor;
 import flixel.math.FlxRandom;
 import engine.Options;
 import flixel.util.FlxTimer;

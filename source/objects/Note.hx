@@ -1,5 +1,7 @@
 package objects;
 
+import engine.Options;
+import engine.Conductor;
 import engine.Styles.StyleHandler;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -23,6 +25,8 @@ class Note extends FlxSprite
 
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
+
+	public var altAnimation:Bool = false;
 
 	public var noteScore:Float = 1;
 
@@ -91,7 +95,7 @@ class Note extends FlxSprite
 
 		setGraphicSize(Std.int(width * 0.7));
 		updateHitbox();
-		antialiasing = true;
+		antialiasing = style.antialiasing;
 
 		switch (noteData)
 		{
@@ -127,7 +131,12 @@ class Note extends FlxSprite
 
 			updateHitbox();
 			xOffset -= width / 2;
-			yOffset -= 10;
+
+			if (Options.get("downscroll") == true)
+				yOffset += 10;
+			else
+				yOffset -= 10;
+			
 
 			if (prevNote.isSustainNote)
 			{

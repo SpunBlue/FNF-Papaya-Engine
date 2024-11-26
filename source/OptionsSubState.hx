@@ -1,5 +1,6 @@
 package;
 
+import engine.Paths;
 import flixel.text.FlxText;
 import engine.Options;
 import flixel.FlxObject;
@@ -11,6 +12,7 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.util.FlxColor;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import objects.Alphabet;
 
 class OptionsSubState extends MusicBeatSubstate
 {
@@ -24,6 +26,10 @@ class OptionsSubState extends MusicBeatSubstate
 					nameOfOption: "allowDistractions"
 				},
 				{
+					text: "Use Downscroll",
+					nameOfOption: "downscroll"
+				},
+				{
 					text: "Use Mod Charts", // easier Mod Charts are planned but not yet implemented
 					nameOfOption: "allowModCharts"
 				}
@@ -34,7 +40,7 @@ class OptionsSubState extends MusicBeatSubstate
 			options: [
 				{
 					text: "Increase Max FPS",
-					nameOfOption: "144FPS"
+					nameOfOption: "maxFPS"
 				},
 				{
 					text: "Limit Flashing Lights",
