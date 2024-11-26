@@ -29,10 +29,10 @@ class Controls {
 	public var PAUSE:Bool = false;
 	public var RESET:Bool = false;
 	
-	// unused
-	public var DEBUG:Bool = false;
 	public var CHEAT:Bool = false;
 
+	// unused
+	public var DEBUG:Bool = false;
 	public function new() {} // do nothing
 
 	public static function init() // temporary
@@ -46,6 +46,8 @@ class Controls {
 		controlMap.set("back", [ESCAPE, BACKSPACE]);
 		controlMap.set("pause", [ESCAPE]);
 		controlMap.set("reset", [F1]);
+
+		controlMap.set("cheat", [TAB]);
 	}
 
 	public function update()
@@ -70,5 +72,7 @@ class Controls {
 		BACK = FlxG.keys.anyJustPressed(controlMap.get('back'));
 		PAUSE = FlxG.keys.anyJustPressed(controlMap.get('pause'));
 		RESET = FlxG.keys.anyJustPressed(controlMap.get('reset'));
+
+		CHEAT = FlxG.keys.anyJustPressed(controlMap.get('cheat'));
 	}
 }

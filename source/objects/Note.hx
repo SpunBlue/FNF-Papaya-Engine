@@ -113,6 +113,9 @@ class Note extends FlxSprite
 
 		if (isSustainNote && prevNote != null)
 		{
+			if (Options.get("downscroll") == true)
+				flipY = !flipY;
+
 			noteScore * 0.2;
 			alpha = 0.6;
 
@@ -132,10 +135,7 @@ class Note extends FlxSprite
 			updateHitbox();
 			xOffset -= width / 2;
 
-			if (Options.get("downscroll") == true)
-				yOffset += 10;
-			else
-				yOffset -= 10;
+			yOffset -= 10;
 			
 
 			if (prevNote.isSustainNote)
