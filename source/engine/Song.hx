@@ -10,6 +10,9 @@ using StringTools;
 typedef SwagSong =
 {
 	var song:String;
+	/**
+	 * SECTIONS, NOT NOTES TOO LAZY TO FIX.
+	 */
 	var notes:Array<SwagSection>;
 	var bpm:Float;
 	var needsVoices:Bool;

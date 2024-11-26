@@ -41,8 +41,9 @@
 	<classpath name="source" />
 	
 	<assets path="assets/preload" rename='assets' preload='true'/>
-	<assets path="assets/preload/sounds" rename='assets/sounds' preload='true' exclude="*.ogg" if="web"/>
-	<assets path="assets/preload/sounds" rename='assets/sounds' preload='true' exclude="*.mp3" unless="web"/>
+	<!--These are preloaded as well, I just can't put it in the preload directory without it copying the mp3 files-->
+	<assets path="assets/sounds" preload='true' exclude="*.ogg" if="web"/>
+	<assets path="assets/sounds" preload='true' exclude="*.mp3" unless="web"/>
 
 	<assets path="assets/images" preload='false'/>
 	<assets path="assets/music" preload='false' exclude="*.ogg" if="web"/>
@@ -50,7 +51,7 @@
 	<assets path="assets/songs" preload='false' exclude="*.ogg" if="web"/>
 	<assets path="assets/songs" preload='false' exclude="*.mp3" unless="web"/>
 
-	<assets path="assets/fonts" embed='true'/>
+	<assets path="assets/fonts" preload="true" embed='true'/>
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<haxelib name="flixel" />

@@ -2,13 +2,20 @@ package engine;
 
 typedef SwagSection =
 {
-	var sectionNotes:Array<Dynamic>;
+	var sectionNotes:Array<SectionNoteData>;
 	var lengthInSteps:Int;
 	var typeOfSection:Int;
 	var mustHitSection:Bool;
 	var bpm:Float;
 	var changeBPM:Bool;
-	var altAnim:Bool;
+}
+
+typedef SectionNoteData =
+{
+	var strumTime:Float;
+	var noteData:Int;
+	var sustainLength:Float;
+	var altAnimation:Bool;
 }
 
 class Section

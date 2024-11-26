@@ -162,12 +162,18 @@ class FreeplayState extends MusicBeatState
 
 			trace(poop);
 
-			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected][0].toLowerCase());
-			PlayState.isStoryMode = false;
-			PlayState.storyDifficulty = curDifficulty;
-			FlxG.switchState(new PlayState());
-			if (FlxG.sound.music != null)
-				FlxG.sound.music.stop();
+			try {
+				PlayState.SONG = Song.loadFromJson(poop, songs[curSelected][0].toLowerCase());
+				PlayState.isStoryMode = false;
+				PlayState.storyDifficulty = curDifficulty;
+				FlxG.switchState(new PlayState());
+				if (FlxG.sound.music != null)
+					FlxG.sound.music.stop();
+			}
+			catch (e:Dynamic) {
+				trace('Error loading song: $e');
+				FlxG.switchState(new ChartingState());
+			}
 		}
 	}
 

@@ -22,6 +22,10 @@ class Options
         {
             name: "allowModCharts",
             toggle: true
+        },
+        {
+            name: "downscroll",
+            toggle: false
         }
     ];
 
@@ -74,12 +78,17 @@ class Options
             }
         }*/
 
-        if (get('safe') == null || get('safe') == false)
+        /*if (get('safe') == null || get('safe') == false)
         {
             for (option in defaultOptions)
                 set(option.name, option.toggle);
 
             set('safe', true);
+        }*/
+
+        for (option in defaultOptions) {
+            if (get(option.name) == null)
+                set(option.name, option.toggle);
         }
         
         var savedControlScheme:Array<ControlScheme> = FlxG.save.data.controlScheme;

@@ -26,6 +26,10 @@ class OptionsSubState extends MusicBeatSubstate
 					nameOfOption: "allowDistractions"
 				},
 				{
+					text: "Use Downscroll",
+					nameOfOption: "downscroll"
+				},
+				{
 					text: "Use Mod Charts", // easier Mod Charts are planned but not yet implemented
 					nameOfOption: "allowModCharts"
 				}

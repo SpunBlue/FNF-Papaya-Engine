@@ -39,7 +39,6 @@ class MusicBeatSubstate extends FlxSubState
 		if (oldStep != curStep && curStep > 0)
 			stepHit();
 
-
 		super.update(elapsed);
 
 		controls.update();
@@ -58,7 +57,11 @@ class MusicBeatSubstate extends FlxSubState
 				lastChange = Conductor.bpmChangeMap[i];
 		}
 
-		curStep = lastChange.stepTime + Math.floor((Conductor.songPosition - lastChange.songTime) / Conductor.stepCrochet);
+		var newStep = lastChange.stepTime + Math.floor((Conductor.songPosition - lastChange.songTime) / Conductor.stepCrochet);
+		if (newStep > curStep) {
+			lastStep = curStep;
+			curStep = newStep;
+		}
 	}
 
 	public function stepHit():Void

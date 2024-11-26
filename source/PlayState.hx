@@ -1,5 +1,6 @@
 package;
 
+import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import engine.Song;
 import engine.Highscore;
 import engine.Paths;
@@ -68,7 +69,7 @@ class PlayState extends MusicBeatState
 	private var gf:Character;
 	private var boyfriend:Boyfriend;
 
-	private var notes:FlxTypedGroup<Note>;
+	private var notes:FlxTypedSpriteGroup<Note>;
 	private var unspawnNotes:Array<Note> = [];
 
 	private var curSection:Int = 0;
@@ -233,7 +234,13 @@ class PlayState extends MusicBeatState
 
 		FlxG.fixedTimestep = false;
 
-		healthBarBG = new FlxSprite(0, FlxG.height * 0.9).loadGraphic(StyleHandler.getImage('${StyleHandler.curStyle.uiDirectoryPath}/healthBar'));
+		var hbY:Float = 0;
+		if (Options.get("downscroll") == false)
+			hbY = FlxG.height * 0.9;
+		else
+			hbY = FlxG.height * 0.1;
+
+		healthBarBG = new FlxSprite(0, hbY).loadGraphic(StyleHandler.getImage('${StyleHandler.curStyle.uiDirectoryPath}/healthBar'));
 		healthBarBG.screenCenter(X);
 		healthBarBG.scrollFactor.set();
 		add(healthBarBG);
@@ -407,7 +414,7 @@ class PlayState extends MusicBeatState
 
 		FlxG.sound.list.add(vocals);
 
-		notes = new FlxTypedGroup<Note>();
+		notes = new FlxTypedSpriteGroup<Note>();
 		add(notes);
 
 		var noteData:Array<SwagSection>;
@@ -422,14 +429,14 @@ class PlayState extends MusicBeatState
 		{
 			var coolSection:Int = Std.int(section.lengthInSteps / 4);
 
-			for (songNotes in section.sectionNotes)
+			for (songNote in section.sectionNotes)
 			{
-				var daStrumTime:Float = songNotes[0];
-				var daNoteData:Int = Std.int(songNotes[1] % 4);
+				var daStrumTime:Float = songNote.strumTime;
+				var daNoteData:Int = Std.int(songNote.noteData % 4);
 
 				var gottaHitNote:Bool = section.mustHitSection;
 
-				if (songNotes[1] > 3)
+				if (songNote.noteData > 3)
 				{
 					gottaHitNote = !section.mustHitSection;
 				}
@@ -441,7 +448,8 @@ class PlayState extends MusicBeatState
 					oldNote = null;
 
 				var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote);
-				swagNote.sustainLength = songNotes[2];
+				swagNote.sustainLength = songNote.sustainLength;
+				swagNote.altAnimation = songNote.altAnimation;
 				swagNote.camera = camHUD;
 
 				var susLength:Float = swagNote.sustainLength;
@@ -480,13 +488,20 @@ class PlayState extends MusicBeatState
 
 	private function generateStaticArrows(player:Int):Void
 	{
+		var y:Float = 0;
+
+		if (Options.get("downscroll") == false)
+			y = 50;
+		else
+			y = FlxG.height * 0.8;
+		
 		switch (player) {
 			case 0: // CPU
-				opponentStrums = new ArrowStrums(128, 50);
+				opponentStrums = new ArrowStrums(128, y);
 				if (!isStoryMode)
 					opponentStrums.animateArrows();
 			case 1:
-				playerStrums = new ArrowStrums((FlxG.width - 128) - (Note.swagWidth * 4), 50);
+				playerStrums = new ArrowStrums((FlxG.width - 128) - (Note.swagWidth * 4), y);
 				if (!isStoryMode)
 					playerStrums.animateArrows();
 		}
@@ -735,7 +750,11 @@ class PlayState extends MusicBeatState
 						strumLine = opponentStrums;
 				}
 
-				daNote.y = (strumLine.strums[daNote.noteData].y - (Conductor.songPosition - daNote.strumTime) * (0.45 * SONG.speed)) + daNote.yOffset;
+				if (Options.get("downscroll") == false)
+					daNote.y = (strumLine.strums[daNote.noteData].y - (Conductor.songPosition - daNote.strumTime) * (0.45 * SONG.speed)) + daNote.yOffset;
+				else
+					daNote.y = (strumLine.strums[daNote.noteData].y + (Conductor.songPosition - daNote.strumTime) * (0.45 * SONG.speed)) + daNote.yOffset;
+
 				daNote.x = strumLine.strums[daNote.noteData].x + daNote.xOffset;
 
 				if (daNote.y > FlxG.height)
@@ -750,11 +769,28 @@ class PlayState extends MusicBeatState
 				}
 
 				// i am so fucking sorry for this if condition
-				if (daNote.isSustainNote
-					&& daNote.y + daNote.offset.y <= strumLine.y + Note.swagWidth / 2
-					&& (!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))))
+				var clipSustainNote:Bool = false;
+				if (Options.get("downscroll") == false) {
+					if (daNote.isSustainNote && daNote.y + daNote.offset.y <= strumLine.y + Note.swagWidth / 2
+						&& (!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))) {
+						clipSustainNote = true;
+					}
+				}
+				/*else {
+
+					if (daNote.isSustainNote && daNote.y + daNote.offset.y >= strumLine.y + Note.swagWidth / 2
+						&& (!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))) {
+						clipSustainNote = true;
+					}
+				}*/
+
+				if (clipSustainNote)
 				{
-					var swagRect = new FlxRect(0, strumLine.y + Note.swagWidth / 2 - daNote.y, daNote.width * 2, daNote.height * 2);
+					var daShit:Float = strumLine.y + (Note.swagWidth / 2) - daNote.y;
+					/*if (Options.get("downscroll") == true)
+						daShit = strumLine.y + (Note.swagWidth / 2) + daNote.y;*/
+
+					var swagRect = new FlxRect(0, daShit, daNote.width * 2, daNote.height * 2);
 					swagRect.y /= daNote.scale.y;
 					swagRect.height -= swagRect.y;
 
@@ -768,11 +804,11 @@ class PlayState extends MusicBeatState
 
 					var altAnim:String = "";
 
-					if (SONG.notes[Math.floor(curStep / 16)] != null)
+					/*if (SONG.notes[Math.floor(curStep / 16)] != null)
 					{
 						if (SONG.notes[Math.floor(curStep / 16)].altAnim)
 							altAnim = '-alt';
-					}
+					}*/
 
 					switch (Math.abs(daNote.noteData))
 					{
@@ -797,7 +833,8 @@ class PlayState extends MusicBeatState
 					daNote.destroy();
 				}
 
-				if (daNote.mustPress && daNote.y < strumLine.y - (Note.swagWidth * 1.2))
+				if (daNote.mustPress && (Options.get("downscroll") == false && daNote.y < strumLine.y - (Note.swagWidth * 1.2) || 
+					Options.get("downscroll") == true && daNote.y > strumLine.y + (Note.swagWidth * 1.2)))
 				{
 					if (daNote.isSustainNote && daNote.wasGoodHit)
 					{
@@ -1291,6 +1328,7 @@ class PlayState extends MusicBeatState
 				popUpScore(note.noteData, note.strumTime);
 				combo += 1;
 			}
+			else
 
 			if (note.noteData >= 0)
 				health += 0.023;
@@ -1384,22 +1422,8 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		/* Example Mod Chart (I like annoying people) */
-		if (Options.get("allowModCharts") && SONG.song.toLowerCase() == 'tutorial' && storyDifficulty == 2) {
-			opponentStrums.visible = false;
-			opponentStrums.x = -9999; // FUCK you7!!1
-			/*if (curBeat % 2 == 1){
-				tutorialFunnisX = new FlxRandom().int(-50, 50);
-				tutorialFunnisY = new FlxRandom().int(-50, 50);
-			}*/
-			
-			for (arrow in playerStrums)
-			{
-				if (curBeat % 2 == 1)
-					FlxTween.tween(arrow, {x: arrow.x - 512, alpha: 0}, 0.15, {ease: FlxEase.circIn});
-				else
-					FlxTween.tween(arrow, {x: arrow.x + 512, alpha: 1}, 0.15, {ease: FlxEase.circIn});
-			}
-		}
+		/* Example Mod Chart (I'm lazy) */
+		if (Options.get("allowModCharts") && SONG.song.toLowerCase() == 'tutorial' && storyDifficulty == 2)
+			notes.visible = opponentStrums.visible = playerStrums.visible = !playerStrums.visible;
 	}
 }
