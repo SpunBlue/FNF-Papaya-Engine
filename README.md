@@ -17,6 +17,9 @@ This Engine does not, and will likely never, support softmodding. If I do, it wi
 ### Can I contribute to the Engine?
 Hell yeah you can, just make sure all contributions are made to the Dev branch.
 
+## Support
+Need help? Join our [Discord Server](https://discord.gg/RYQFSxctUJ)!
+
 ## Q & A
 ### Can I use this as a base for my own FNF Engine?
 I can't stop you, but I'd prefer not. If there is a demand for soft modding support for Papaya Engine for whatever reason, I will fork the repo and do it myself.
