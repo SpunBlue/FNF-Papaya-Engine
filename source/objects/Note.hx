@@ -113,8 +113,10 @@ class Note extends FlxSprite
 
 		if (isSustainNote && prevNote != null)
 		{
-			if (Options.get("downscroll") == true)
+			if (Options.get("downscroll") == true) {
 				flipY = !flipY;
+				yOffset += swagWidth / 2;
+			}
 
 			noteScore * 0.2;
 			alpha = 0.6;
@@ -137,7 +139,6 @@ class Note extends FlxSprite
 
 			yOffset -= 10;
 			
-
 			if (prevNote.isSustainNote)
 			{
 				switch (prevNote.noteData)

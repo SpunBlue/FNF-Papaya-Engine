@@ -1,5 +1,6 @@
 package;
 
+import engine.HelpfulAPI;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import engine.Song;
 import engine.Highscore;
@@ -61,7 +62,7 @@ class PlayState extends MusicBeatState
 	public static var isStoryMode:Bool = false;
 	public static var storyWeek:Int = 0;
 	public static var storyPlaylist:Array<String> = [];
-	public static var storyDifficulty:Int = 1;
+	public static var storyDifficulty:String = "normal";
 
 	private var vocals:FlxSound;
 
@@ -738,6 +739,16 @@ class PlayState extends MusicBeatState
 					opponentStrums.playAnim(i, 'static');
 			}
 
+			if (botplay) {
+				songScore = 0;
+				health = 0.1;
+	
+				for (strum in playerStrums.strums) {
+					if (strum.animation.finished)
+						playerStrums.playAnim(strum.ID, "static");
+				}
+			}
+
 			notes.forEachAlive(function(daNote:Note)
 			{
 				var strumLine:ArrowStrums = null;
@@ -835,7 +846,7 @@ class PlayState extends MusicBeatState
 				
 				if (botplay) {
 					if (daNote.mustPress && (Options.get("downscroll") == false ? daNote.y <= playerStrums.y : daNote.y >= playerStrums.y)) {
-						if (playerStrums.strums[Math.round(Math.abs(daNote.noteData))].animation.name != "confirmed")
+						if (playerStrums.strums[Math.round(Math.abs(daNote.noteData))].animation.name != "confirm")
 							playerStrums.playAnim(Math.round(Math.abs(daNote.noteData)), "confirm");
 
 						goodNoteHit(daNote);
@@ -872,16 +883,7 @@ class PlayState extends MusicBeatState
 
 		if (!inCutscene && !botplay)
 			keyShit();
-		
-		if (botplay) {
-			songScore = 0;
-			health = 0.1;
 
-			for (strum in playerStrums.strums) {
-				if (strum.animation.finished)
-					playerStrums.playAnim(strum.ID, "static");
-			}
-		}
 
 		#if debug
 		if (FlxG.keys.justPressed.ONE)
@@ -925,23 +927,13 @@ class PlayState extends MusicBeatState
 			}
 			else
 			{
-				var difficulty:String = "";
-
-				if (storyDifficulty == 0)
-					difficulty = '-easy';
-
-				if (storyDifficulty == 2)
-					difficulty = '-hard';
-
 				trace('LOADING NEXT SONG');
-				trace(PlayState.storyPlaylist[0].toLowerCase() + difficulty);
+				trace(PlayState.storyPlaylist[0].toLowerCase() + '-$storyDifficulty');
 
 				FlxTransitionableState.skipNextTransIn = true;
 				FlxTransitionableState.skipNextTransOut = true;
 
-				PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + difficulty, PlayState.storyPlaylist[0].toLowerCase());
-
-				FlxG.switchState(new PlayState());
+				HelpfulAPI.playSongs(storyPlaylist, storyDifficulty);
 			}
 		}
 		else
@@ -1344,13 +1336,11 @@ class PlayState extends MusicBeatState
 		{
 			if (!note.isSustainNote)
 			{
+				health += 0.023;
+
 				popUpScore(note.noteData, note.strumTime);
 				combo += 1;
 			}
-			else
-
-			if (note.noteData >= 0)
-				health += 0.023;
 			else
 				health += 0.004;
 
@@ -1442,7 +1432,7 @@ class PlayState extends MusicBeatState
 		}
 
 		/* Example Mod Chart (I'm lazy) */
-		if (Options.get("allowModCharts") && SONG.song.toLowerCase() == 'tutorial' && storyDifficulty == 2)
+		if (Options.get("allowModCharts") && SONG.song.toLowerCase() == 'tutorial' && storyDifficulty == 'hard')
 			notes.visible = opponentStrums.visible = playerStrums.visible = !playerStrums.visible;
 	}
 }

@@ -2,11 +2,11 @@
 A Friday Night Funkin' Engine made for hardcoded modifications. Created for the KAVIFUNK Mod to use as a base.
 
 ## What is this engine for?
-This engine was made as a quick-start for Hardmodded modifications to Friday Night Funkin'. This way, you don't have to use the base game or another FNF Engine and be forced
+This engine was made as a quick-start for Hard-modded modifications to Friday Night Funkin'. This way, you don't have to use the base game or another FNF Engine and be forced
 to either fix up the base game, or remove bloat from the other Engines.
 
 ### How do I use the engine?
-This Engine does not, and will likely never, support softmodding. If I do, it will be because I feel like it. Now, here's how to use it.
+This Engine is NOT made for Soft-modding. It is purely for Hard-coded modifications to the source code. Now, here's how to use it.
 
 - Fork the Repository
 - Use GitHub Desktop or Git to clone the Repo to your device
@@ -22,7 +22,7 @@ Need help? Join our [Discord Server](https://discord.gg/RYQFSxctUJ)!
 
 ## Q & A
 ### Can I use this as a base for my own FNF Engine?
-I can't stop you, but I'd prefer not. If there is a demand for soft modding support for Papaya Engine for whatever reason, I will fork the repo and do it myself.
+I can't stop you, but I'd prefer not. I do plan on making a version of this Engine called "Fruitbowl Engine" that implements Soft-modding into Papaya Engine.
 ### Can I use this for my mod?
 Yes. Not like I'd be able to stop you if I said no, and why would I say no?
 ### What do you plan on implementing?

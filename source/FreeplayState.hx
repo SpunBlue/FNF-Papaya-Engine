@@ -1,5 +1,6 @@
 package;
 
+import engine.HelpfulAPI;
 import engine.Song;
 import engine.Highscore;
 import objects.HealthIcon;
@@ -158,17 +159,19 @@ class FreeplayState extends MusicBeatState
 
 		if (accepted)
 		{
-			var poop:String = Highscore.formatSong(songs[curSelected][0].toLowerCase(), curDifficulty);
+			/*var poop:String = Highscore.formatSong(songs[curSelected][0].toLowerCase(), curDifficulty);
 
-			trace(poop);
+			trace(poop);*/
 
 			try {
-				PlayState.SONG = Song.loadFromJson(poop, songs[curSelected][0].toLowerCase());
+				/*PlayState.SONG = Song.loadFromJson(poop, songs[curSelected][0].toLowerCase());
 				PlayState.isStoryMode = false;
 				PlayState.storyDifficulty = curDifficulty;
 				FlxG.switchState(new PlayState());
 				if (FlxG.sound.music != null)
-					FlxG.sound.music.stop();
+					FlxG.sound.music.stop();*/
+
+				HelpfulAPI.playSong(songs[curSelected][0], HelpfulAPI.getDifficultyFromIndex(curDifficulty));
 			}
 			catch (e:Dynamic) {
 				trace('Error loading song: $e');
@@ -186,7 +189,7 @@ class FreeplayState extends MusicBeatState
 		if (curDifficulty > 2)
 			curDifficulty = 0;
 
-		intendedScore = Highscore.getScore(songs[curSelected][0], curDifficulty);
+		intendedScore = Highscore.getScore(songs[curSelected][0], HelpfulAPI.getDifficultyFromIndex(curDifficulty));
 
 		switch (curDifficulty)
 		{
@@ -215,7 +218,7 @@ class FreeplayState extends MusicBeatState
 
 		// selector.y = (70 * curSelected) + 30;
 
-		intendedScore = Highscore.getScore(songs[curSelected][0], curDifficulty);
+		intendedScore = Highscore.getScore(songs[curSelected][0], HelpfulAPI.getDifficultyFromIndex(curDifficulty));
 
 		var bullShit:Int = 0;
 
