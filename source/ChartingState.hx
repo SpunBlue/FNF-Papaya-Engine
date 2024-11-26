@@ -509,7 +509,10 @@ class ChartingState extends MusicBeatState
 	{
 		if (section == null)
 			section = curSection;
-	
+
+		while(_song.notes[section] == null)
+			addSection();
+			
 		var daBPM:Float = _song.bpm;
 		var daPos:Float = 0;
 		
@@ -534,9 +537,9 @@ class ChartingState extends MusicBeatState
 		Conductor.songPosition = FlxG.sound.music.time;
 		_song.song = typingShit.text;
 
-		strumLine.y = getYfromStrum((Conductor.songPosition - sectionStartTime()) % (Conductor.stepCrochet * 16));
+		strumLine.y = getYfromStrum((Conductor.songPosition - sectionStartTime()) % (Conductor.stepCrochet * _song.notes[curSection].lengthInSteps));
 
-		if (curStep >= (sectionStartTime() / Conductor.stepCrochet) + _song.notes[curSection].lengthInSteps)
+		if (Conductor.songPosition >= sectionStartTime(curSection + 1))
 		{
 			trace(curStep);
 			trace((_song.notes[curSection].lengthInSteps) * (curSection + 1));
