@@ -1,5 +1,6 @@
 package;
 
+import engine.HelpfulAPI;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import engine.Song;
 import engine.Highscore;
@@ -61,7 +62,7 @@ class PlayState extends MusicBeatState
 	public static var isStoryMode:Bool = false;
 	public static var storyWeek:Int = 0;
 	public static var storyPlaylist:Array<String> = [];
-	public static var storyDifficulty:Int = 1;
+	public static var storyDifficulty:String = "normal";
 
 	private var vocals:FlxSound;
 
@@ -193,9 +194,7 @@ class PlayState extends MusicBeatState
 		strumLine.scrollFactor.set();*/
 
 		if (!Options.get('forceDefaultStyle'))
-		{
-			trace('This is where the style changing code would be implemented.');
-		}
+			StyleHandler.curStyle = StyleHandler.styles.get(SONG.visualStyle);
 
 		generateStaticArrows(0);
 		add(opponentStrums);
@@ -555,6 +554,8 @@ class PlayState extends MusicBeatState
 	var startedCountdown:Bool = false;
 	var canPause:Bool = true;
 
+	static var botplay:Bool = false;
+
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -698,11 +699,9 @@ class PlayState extends MusicBeatState
 			trace("RESET = True");
 		}
 
-		// CHEAT = brandon's a pussy
-		if (controls.CHEAT)
-		{
-			health += 1;
-			trace("User is cheating!");
+		if (controls.CHEAT) {
+			botplay = !botplay;
+			trace('botplay $botplay');
 		}
 
 		if (health <= 0)
@@ -740,6 +739,16 @@ class PlayState extends MusicBeatState
 					opponentStrums.playAnim(i, 'static');
 			}
 
+			if (botplay) {
+				songScore = 0;
+				health = 0.1;
+	
+				for (strum in playerStrums.strums) {
+					if (strum.animation.finished)
+						playerStrums.playAnim(strum.ID, "static");
+				}
+			}
+
 			notes.forEachAlive(function(daNote:Note)
 			{
 				var strumLine:ArrowStrums = null;
@@ -749,11 +758,6 @@ class PlayState extends MusicBeatState
 					case false:
 						strumLine = opponentStrums;
 				}
-
-				if (Options.get("downscroll") == false)
-					daNote.y = (strumLine.strums[daNote.noteData].y - (Conductor.songPosition - daNote.strumTime) * (0.45 * SONG.speed)) + daNote.yOffset;
-				else
-					daNote.y = (strumLine.strums[daNote.noteData].y + (Conductor.songPosition - daNote.strumTime) * (0.45 * SONG.speed)) + daNote.yOffset;
 
 				daNote.x = strumLine.strums[daNote.noteData].x + daNote.xOffset;
 
@@ -768,40 +772,47 @@ class PlayState extends MusicBeatState
 					daNote.active = true;
 				}
 
-				// i am so fucking sorry for this if condition
-				var clipSustainNote:Bool = false;
-				if (Options.get("downscroll") == false) {
-					if (daNote.isSustainNote && daNote.y + daNote.offset.y <= strumLine.y + Note.swagWidth / 2
-						&& (!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))) {
-						clipSustainNote = true;
+				var strumLineMid:Float = strumLine.y + (Note.swagWidth / 2);
+
+				// i literally just stole this from the FNF Week 7 shit which I couldn't find when I originally made this
+				if (Options.get("downscroll") == true) {
+					daNote.y = (strumLine.strums[daNote.noteData].y + (Conductor.songPosition - daNote.strumTime) * (0.45 * SONG.speed)) + daNote.yOffset;
+
+					if (daNote.isSustainNote)
+					{
+						if (daNote.animation.curAnim.name.endsWith("end") && daNote.prevNote != null)
+							daNote.y += daNote.prevNote.height;
+						else
+							daNote.y += daNote.height / 2;
+	
+						if ((!daNote.mustPress || botplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
+							&& daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= strumLineMid)
+						{
+							var swagRect:FlxRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
+	
+							swagRect.height = (strumLineMid - daNote.y) / daNote.scale.y;
+							swagRect.y = daNote.frameHeight - swagRect.height;
+							daNote.clipRect = swagRect;
+						}
 					}
 				}
-				/*else {
+				else {
+					daNote.y = (strumLine.strums[daNote.noteData].y - (Conductor.songPosition - daNote.strumTime) * (0.45 * SONG.speed)) + daNote.yOffset;
 
-					if (daNote.isSustainNote && daNote.y + daNote.offset.y >= strumLine.y + Note.swagWidth / 2
-						&& (!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))) {
-						clipSustainNote = true;
+					if (daNote.isSustainNote
+						&& (!daNote.mustPress || botplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
+						&& daNote.y + daNote.offset.y * daNote.scale.y <= strumLineMid)
+					{
+						var swagRect:FlxRect = new FlxRect(0, 0, daNote.width / daNote.scale.x, daNote.height / daNote.scale.y);
+
+						swagRect.y = (strumLineMid - daNote.y) / daNote.scale.y;
+						swagRect.height -= swagRect.y;
+						daNote.clipRect = swagRect;
 					}
-				}*/
-
-				if (clipSustainNote)
-				{
-					var daShit:Float = strumLine.y + (Note.swagWidth / 2) - daNote.y;
-					/*if (Options.get("downscroll") == true)
-						daShit = strumLine.y + (Note.swagWidth / 2) + daNote.y;*/
-
-					var swagRect = new FlxRect(0, daShit, daNote.width * 2, daNote.height * 2);
-					swagRect.y /= daNote.scale.y;
-					swagRect.height -= swagRect.y;
-
-					daNote.clipRect = swagRect;
 				}
 
 				if (!daNote.mustPress && daNote.wasGoodHit)
 				{
-					if (SONG.song != 'Tutorial')
-						camZooming = true;
-
 					var altAnim:String = "";
 
 					/*if (SONG.notes[Math.floor(curStep / 16)] != null)
@@ -832,6 +843,15 @@ class PlayState extends MusicBeatState
 					notes.remove(daNote, true);
 					daNote.destroy();
 				}
+				
+				if (botplay) {
+					if (daNote.mustPress && (Options.get("downscroll") == false ? daNote.y <= playerStrums.y : daNote.y >= playerStrums.y)) {
+						if (playerStrums.strums[Math.round(Math.abs(daNote.noteData))].animation.name != "confirm")
+							playerStrums.playAnim(Math.round(Math.abs(daNote.noteData)), "confirm");
+
+						goodNoteHit(daNote);
+					}
+				}
 
 				if (daNote.mustPress && (Options.get("downscroll") == false && daNote.y < strumLine.y - (Note.swagWidth * 1.2) || 
 					Options.get("downscroll") == true && daNote.y > strumLine.y + (Note.swagWidth * 1.2)))
@@ -861,8 +881,9 @@ class PlayState extends MusicBeatState
 			});
 		}
 
-		if (!inCutscene)
+		if (!inCutscene && !botplay)
 			keyShit();
+
 
 		#if debug
 		if (FlxG.keys.justPressed.ONE)
@@ -875,12 +896,8 @@ class PlayState extends MusicBeatState
 		canPause = false;
 		FlxG.sound.music.volume = 0;
 		vocals.volume = 0;
-		if (SONG.validScore)
-		{
-			#if !switch
-			Highscore.saveScore(SONG.song, songScore, storyDifficulty);
-			#end
-		}
+
+		Highscore.saveScore(SONG.song, songScore, storyDifficulty);
 
 		if (isStoryMode)
 		{
@@ -897,32 +914,19 @@ class PlayState extends MusicBeatState
 
 				FlxG.switchState(new StoryMenuState());
 
-				if (SONG.validScore)
-				{
-					Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
-				}
+				Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
 
 				FlxG.save.flush();
 			}
 			else
 			{
-				var difficulty:String = "";
-
-				if (storyDifficulty == 0)
-					difficulty = '-easy';
-
-				if (storyDifficulty == 2)
-					difficulty = '-hard';
-
 				trace('LOADING NEXT SONG');
-				trace(PlayState.storyPlaylist[0].toLowerCase() + difficulty);
+				trace(PlayState.storyPlaylist[0].toLowerCase() + '-$storyDifficulty');
 
 				FlxTransitionableState.skipNextTransIn = true;
 				FlxTransitionableState.skipNextTransOut = true;
 
-				PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + difficulty, PlayState.storyPlaylist[0]);
-
-				FlxG.switchState(new PlayState());
+				HelpfulAPI.playSongs(storyPlaylist, storyDifficulty);
 			}
 		}
 		else
@@ -1154,7 +1158,7 @@ class PlayState extends MusicBeatState
 						daNote.destroy();
 					}
 				}
-				else
+				else if (Options.get("ghostTapping") != true)
 				{
 					badNoteCheck();
 				}
@@ -1325,13 +1329,11 @@ class PlayState extends MusicBeatState
 		{
 			if (!note.isSustainNote)
 			{
+				health += 0.023;
+
 				popUpScore(note.noteData, note.strumTime);
 				combo += 1;
 			}
-			else
-
-			if (note.noteData >= 0)
-				health += 0.023;
 			else
 				health += 0.004;
 
@@ -1423,7 +1425,7 @@ class PlayState extends MusicBeatState
 		}
 
 		/* Example Mod Chart (I'm lazy) */
-		if (Options.get("allowModCharts") && SONG.song.toLowerCase() == 'tutorial' && storyDifficulty == 2)
+		if (Options.get("allowModCharts") && SONG.song.toLowerCase() == 'tutorial' && storyDifficulty == 'hard')
 			notes.visible = opponentStrums.visible = playerStrums.visible = !playerStrums.visible;
 	}
 }

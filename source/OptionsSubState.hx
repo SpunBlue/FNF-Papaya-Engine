@@ -22,15 +22,19 @@ class OptionsSubState extends MusicBeatSubstate
 			group: "Gameplay",
 			options: [
 				{
-					text: "Allow Distractions",
-					nameOfOption: "allowDistractions"
+					text: "Use Ghost Tapping",
+					nameOfOption: "ghostTapping"
 				},
 				{
 					text: "Use Downscroll",
 					nameOfOption: "downscroll"
 				},
 				{
-					text: "Use Mod Charts", // easier Mod Charts are planned but not yet implemented
+					text: "Allow Distractions",
+					nameOfOption: "allowDistractions"
+				},
+				{
+					text: "Use Mod Charts",
 					nameOfOption: "allowModCharts"
 				}
 			]
@@ -46,10 +50,6 @@ class OptionsSubState extends MusicBeatSubstate
 					text: "Limit Flashing Lights",
 					nameOfOption: "limitFlashing"
 				},
-				/*{
-					text: "Disable Antialiasing",
-					nameOfOption: "disableAntialiasing"
-				},*/
 				{
 					text: "Force Default Note Style",
 					nameOfOption: "forceDefaultStyle"

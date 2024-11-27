@@ -1,5 +1,6 @@
 package;
 
+import engine.HelpfulAPI;
 import engine.Highscore;
 import engine.Song;
 import objects.MenuCharacter;
@@ -25,7 +26,7 @@ class StoryMenuState extends MusicBeatState
 
 	var weekData:Array<Dynamic> = [
 		['Tutorial'],
-		['Dad Battle']
+		['Bopeebo', 'Fresh', 'Dad Battle']
 	];
 	var curDifficulty:Int = 1;
 
@@ -277,11 +278,11 @@ class StoryMenuState extends MusicBeatState
 				stopspamming = true;
 			}
 
-			PlayState.storyPlaylist = weekData[curWeek];
-			PlayState.isStoryMode = true;
+			/*PlayState.storyPlaylist = weekData[curWeek];
+			PlayState.isStoryMode = true;*/
 			selectedWeek = true;
 
-			var diffic = "";
+			/*var diffic = "";
 
 			switch (curDifficulty)
 			{
@@ -289,18 +290,20 @@ class StoryMenuState extends MusicBeatState
 					diffic = '-easy';
 				case 2:
 					diffic = '-hard';
-			}
+			}*/
 
-			PlayState.storyDifficulty = curDifficulty;
+			/*PlayState.storyDifficulty = curDifficulty;
 
 			PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + diffic, PlayState.storyPlaylist[0].toLowerCase());
 			PlayState.storyWeek = curWeek;
-			PlayState.campaignScore = 0;
+			PlayState.campaignScore = 0;*/
 			new FlxTimer().start(1, function(tmr:FlxTimer)
 			{
 				if (FlxG.sound.music != null)
 					FlxG.sound.music.stop();
-				FlxG.switchState(new PlayState());
+				
+				
+				HelpfulAPI.playSongs(weekData[curWeek], HelpfulAPI.getDifficultyFromIndex(curDifficulty), curWeek);
 			});
 		}
 	}
@@ -333,10 +336,10 @@ class StoryMenuState extends MusicBeatState
 
 		// USING THESE WEIRD VALUES SO THAT IT DOESNT FLOAT UP
 		sprDifficulty.y = leftArrow.y - 15;
-		intendedScore = Highscore.getWeekScore(curWeek, curDifficulty);
+		intendedScore = Highscore.getWeekScore(curWeek, HelpfulAPI.getDifficultyFromIndex(curDifficulty));
 
 		#if !switch
-		intendedScore = Highscore.getWeekScore(curWeek, curDifficulty);
+		intendedScore = Highscore.getWeekScore(curWeek, HelpfulAPI.getDifficultyFromIndex(curDifficulty));
 		#end
 
 		FlxTween.tween(sprDifficulty, {y: leftArrow.y + 15, alpha: 1}, 0.07);
@@ -401,8 +404,6 @@ class StoryMenuState extends MusicBeatState
 		txtTracklist.screenCenter(X);
 		txtTracklist.x -= FlxG.width * 0.35;
 
-		#if !switch
-		intendedScore = Highscore.getWeekScore(curWeek, curDifficulty);
-		#end
+		intendedScore = Highscore.getWeekScore(curWeek, HelpfulAPI.getDifficultyFromIndex(curDifficulty));
 	}
 }

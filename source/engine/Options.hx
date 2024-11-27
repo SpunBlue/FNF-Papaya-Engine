@@ -26,6 +26,10 @@ class Options
         {
             name: "downscroll",
             toggle: false
+        },
+        {
+            name: "ghostTapping",
+            toggle: false
         }
     ];
 

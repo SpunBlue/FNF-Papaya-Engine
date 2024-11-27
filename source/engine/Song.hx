@@ -22,7 +22,6 @@ typedef SwagSong =
 	var player2:String;
 	var girlfriend:String;
 
-	var validScore:Bool;
 	var visualStyle:String;
 }
 
@@ -79,7 +78,6 @@ class Song
 	public static function parseJSONshit(rawJson:String):SwagSong
 	{
 		var swagShit:SwagSong = cast Json.parse(rawJson).song;
-		swagShit.validScore = true;
 		return swagShit;
 	}
 }

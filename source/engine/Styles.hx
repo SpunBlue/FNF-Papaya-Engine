@@ -14,6 +14,8 @@ class StyleHandler
     ];
 
     public static function init() {
+        styleList = CoolUtil.coolTextFile(Paths.getTxt("visualStyleList"));
+
         for (style in styleList) {
             var data:StyleData = Json.parse(Assets.getText(Paths.getJSON('styles/$style')));
             styles.set(style, data);
