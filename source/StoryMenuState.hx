@@ -303,7 +303,7 @@ class StoryMenuState extends MusicBeatState
 					FlxG.sound.music.stop();
 				
 				
-				HelpfulAPI.playSongs(weekData[curWeek], HelpfulAPI.getDifficultyFromIndex(curDifficulty));
+				HelpfulAPI.playSongs(weekData[curWeek], HelpfulAPI.getDifficultyFromIndex(curDifficulty), curWeek);
 			});
 		}
 	}

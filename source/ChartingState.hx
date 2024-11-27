@@ -146,7 +146,6 @@ class ChartingState extends MusicBeatState
 				player2: 'dad',
 				girlfriend: 'gf',
 				speed: 1,
-				validScore: true,
 				visualStyle: 'default'
 			};
 		}
@@ -495,6 +494,12 @@ class ChartingState extends MusicBeatState
 			if (wname == 'section_length')
 			{
 				_song.notes[curSection].lengthInSteps = Std.int(nums.value);
+				
+				if (_song.notes[curSection].lengthInSteps < 4)
+					nums.value = _song.notes[curSection].lengthInSteps = 4;
+				else if (_song.notes[curSection].lengthInSteps > 16)
+					nums.value = _song.notes[curSection].lengthInSteps = 16;
+
 				updateGrid();
 			}
 			else if (wname == 'song_speed')
@@ -588,9 +593,6 @@ class ChartingState extends MusicBeatState
 			changeSection(curSection - 1, false);
 		}
 
-		FlxG.watch.addQuick('daBeat', curBeat);
-		FlxG.watch.addQuick('daStep', curStep);
-
 		if (FlxG.mouse.justPressed)
 		{
 			if (FlxG.mouse.overlaps(curRenderedNotes))
@@ -678,7 +680,7 @@ class ChartingState extends MusicBeatState
 			}
 		}
 
-		if (!typingShit.hasFocus)
+		if (!FlxG.mouse.overlaps(UI_box))
 		{
 			if (FlxG.keys.justPressed.SPACE)
 			{
@@ -975,13 +977,13 @@ class ChartingState extends MusicBeatState
 			}
 		}
 
-		if (_song.notes[curSection].lengthInSteps > 0) {
-			gridBG.clipRect = new FlxRect(0, 0, GRID_SIZE * 8, GRID_SIZE * _song.notes[curSection].lengthInSteps);
-			gridBlackLine.clipRect = new FlxRect(0, 0, 2, GRID_SIZE * _song.notes[curSection].lengthInSteps);
-		}
-
 		if (vocals != null)
 			updateWaveform();
+
+		if (_song.notes[curSection].lengthInSteps > 0) {
+			waveformSprite.clipRect = gridBG.clipRect = new FlxRect(0, 0, GRID_SIZE * 8, GRID_SIZE * _song.notes[curSection].lengthInSteps);
+			gridBlackLine.clipRect = new FlxRect(0, 0, 2, GRID_SIZE * _song.notes[curSection].lengthInSteps);
+		}
 	}
 
 	private function addSection(lengthInSteps:Int = 16):Void
@@ -1100,7 +1102,7 @@ class ChartingState extends MusicBeatState
 	function updateWaveform() {
 		if(waveformPrinted) {
 			var width:Int = Std.int(GRID_SIZE * 8);
-			var height:Int = Std.int(gridBG.height);
+			var height:Int = Std.int(GRID_SIZE * 16);
 			if(lastWaveformHeight != height && waveformSprite.pixels != null)
 			{
 				waveformSprite.pixels.dispose();
@@ -1117,7 +1119,7 @@ class ChartingState extends MusicBeatState
 		wavData[1][0] = [];
 		wavData[1][1] = [];
 
-		var steps:Int = Math.round(_song.notes[curSection].lengthInSteps);
+		var steps:Int = 16;
 		var st:Float = sectionStartTime();
 		var et:Float = st + (Conductor.stepCrochet * steps);
 

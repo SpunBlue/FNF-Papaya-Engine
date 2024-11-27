@@ -28,9 +28,7 @@ class Conductor
 
 	public static var bpmChangeMap:Array<BPMChangeEvent> = [];
 
-	public function new()
-	{
-	}
+	public function new() {}
 
 	public static function mapBPMChanges(song:SwagSong)
 	{
@@ -56,7 +54,7 @@ class Conductor
 			totalSteps += deltaSteps;
 			totalPos += ((60 / curBPM) * 1000 / 4) * deltaSteps;
 		}
-		trace("new BPM map BUDDY " + bpmChangeMap);
+		// trace("new BPM map BUDDY " + bpmChangeMap);
 	}
 
 	public static function changeBPM(newBpm:Float)
