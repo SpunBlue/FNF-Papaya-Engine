@@ -1,5 +1,6 @@
-package;
+package engine.editors;
 
+#if debug
 import objects.Character;
 import objects.Boyfriend;
 import flixel.FlxG;
@@ -195,3 +196,4 @@ class AnimationDebug extends FlxState
 		super.update(elapsed);
 	}
 }
+#end

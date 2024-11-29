@@ -1,5 +1,7 @@
 package objects;
 
+import engine.Styles.StyleData;
+import engine.Styles.LocalStyle;
 import engine.Styles.StyleHandler;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -7,13 +9,17 @@ import flixel.FlxSprite;
 class NoteSplash extends FlxSprite {
     var properties:SplashProperties = null;
 
-    override public function new(?x:Float = 0, ?y:Float = 0)
+    override public function new(?x:Float = 0, ?y:Float = 0, ?styleHandler:LocalStyle)
     {
         super(x, y);
 
-        var style = StyleHandler.curStyle;
-        properties = style.splashProperties;
+        var style:StyleData = null;
+		if (styleHandler == null)
+            style = StyleHandler.getData();
+        else 
+            style = styleHandler.curStyle;
 
+        properties = style.splashProperties;
         frames = StyleHandler.getSparrow(style.splashesImagePath);
 
         for (i in 1...properties.impactAmount + 1)
@@ -23,6 +29,8 @@ class NoteSplash extends FlxSprite {
             animation.addByPrefix("greenSplash" + i, 'note impact $i green', properties.fps, false);
             animation.addByPrefix("redSplash" + i, 'note impact $i red', properties.fps, false);
         }
+
+        antialiasing = style.antialiasing;
     }
 
     override public function update(elapsed:Float){

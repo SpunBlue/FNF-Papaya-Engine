@@ -5,11 +5,16 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import haxe.Json;
 import openfl.Assets;
 
+/**
+ * This isn't a local style handler, this manages the global style of the game.
+ */
 class StyleHandler
 {
-    public static var curStyle:StyleData;
+    // public static var curStyle:StyleData;
+    private static var handler:LocalStyle;
+
     public static var styles:Map<String, StyleData> = new Map();
-    public static var styleList:Array<String> =[
+    public static var styleList:Array<String> = [
         'default'
     ];
 
@@ -21,23 +26,75 @@ class StyleHandler
             styles.set(style, data);
         }
 
-        curStyle = styles.get('default');
+        handler = new LocalStyle(styles.get(styleList[0]));
+    }
+
+    public static function getData():StyleData {
+        return handler.curStyle;
     }
 
     public static function getImage(path:String):String {
-        return Paths.getImage('styles/${curStyle.root}/$path');
+        return Paths.getImage('styles/${handler.curStyle.root}/$path');
     }
 
     public static function getSparrow(path:String):FlxAtlasFrames {
-        return Paths.getSparrow('styles/${curStyle.root}/$path');
+        return Paths.getSparrow('styles/${handler.curStyle.root}/$path');
     }
 
     public static function giveMeStrums():FlxAtlasFrames {
-        return getSparrow(curStyle.strumImagePath);
+        return getSparrow(handler.curStyle.strumImagePath);
     }
 
     public static function giveMeNotes():FlxAtlasFrames {
-        return getSparrow(curStyle.noteImagePath);
+        return getSparrow(handler.curStyle.noteImagePath);
+    }
+}
+
+/**
+ * This is a local style handler, meant for locally defined visual styles.
+ */
+class LocalStyle {
+    public var curStyle:StyleData;
+
+    public function new (style:StyleData) {
+        curStyle = style;
+    }
+
+    public function setStyle(name:String) {
+        curStyle = StyleHandler.styles.get(name);
+        if (curStyle == null) {
+            curStyle = StyleHandler.getData();
+            trace("Could not locate style " + name);
+        }
+    }
+
+    // I'd make these return from the global style but it likely wouldn't work.
+    public function getImage(path:String):String {
+        return Paths.getImage('styles/${curStyle.root}/$path');
+    }
+
+    public function getSparrow(path:String):FlxAtlasFrames {
+        return Paths.getSparrow('styles/${curStyle.root}/$path');
+    }
+
+    public function giveMeStrums():FlxAtlasFrames {
+        try {
+            return getSparrow(curStyle.strumImagePath);
+        }
+        catch (e:Dynamic) {
+            trace('Couldn\'t retrieve strums, pulling from default. ($e).');
+            return StyleHandler.giveMeStrums();
+        }
+    }
+
+    public function giveMeNotes():FlxAtlasFrames {
+        try {
+            return getSparrow(curStyle.noteImagePath);
+        }
+        catch (e:Dynamic) {
+            trace('Couldn\'t retrieve notes, pulling from default. ($e).');
+            return StyleHandler.giveMeNotes();
+        }
     }
 }
 

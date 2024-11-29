@@ -34,6 +34,8 @@ class Main extends Sprite
 		super();
 
 		addChild(new FlxGame(0, 0, TitleState));
+		engine.Options.init();
+		engine.Styles.StyleHandler.init();
 
 		#if debug
 		addChild(new FPS(10, 3, 0xFFFFFF));

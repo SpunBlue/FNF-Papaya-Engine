@@ -1,5 +1,8 @@
 package;
 
+import engine.editors.AnimationDebug;
+import engine.editors.ChartingState;
+import engine.Styles.LocalStyle;
 import engine.HelpfulAPI;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import engine.Song;
@@ -119,6 +122,8 @@ class PlayState extends MusicBeatState
 
 	var inCutscene:Bool = false;
 
+	private var styleHandler:LocalStyle;
+
 	override public function create()
 	{
 		// var gameCam:FlxCamera = FlxG.camera;
@@ -193,8 +198,9 @@ class PlayState extends MusicBeatState
 		/*strumLine = new FlxSprite(0, 50).makeGraphic(FlxG.width, 10);
 		strumLine.scrollFactor.set();*/
 
-		if (!Options.get('forceDefaultStyle'))
-			StyleHandler.curStyle = StyleHandler.styles.get(SONG.visualStyle);
+		styleHandler = new LocalStyle(StyleHandler.getData());
+		if (!Options.get('forceDefaultStyle') && SONG.visualStyle != null)
+			styleHandler.setStyle(SONG.visualStyle);
 
 		generateStaticArrows(0);
 		add(opponentStrums);
@@ -204,8 +210,8 @@ class PlayState extends MusicBeatState
 
 		splashes = new FlxTypedGroup<NoteSplash>();
 
-		if (StyleHandler.curStyle.enableSplashes) {
-			var tempSplash:NoteSplash = new NoteSplash();
+		if (styleHandler.curStyle.enableSplashes) {
+			var tempSplash:NoteSplash = new NoteSplash(0, 0, styleHandler);
 			splashes.add(tempSplash);
 			tempSplash.kill();
 		}
@@ -239,7 +245,7 @@ class PlayState extends MusicBeatState
 		else
 			hbY = FlxG.height * 0.1;
 
-		healthBarBG = new FlxSprite(0, hbY).loadGraphic(StyleHandler.getImage('${StyleHandler.curStyle.uiDirectoryPath}/healthBar'));
+		healthBarBG = new FlxSprite(0, hbY).loadGraphic(styleHandler.getImage('${styleHandler.curStyle.uiDirectoryPath}/healthBar'));
 		healthBarBG.screenCenter(X);
 		healthBarBG.scrollFactor.set();
 		add(healthBarBG);
@@ -300,22 +306,11 @@ class PlayState extends MusicBeatState
 			gf.dance();
 			boyfriend.playAnim('idle');
 
-			var introAssets:Map<String, Array<String>> = new Map<String, Array<String>>();
-			introAssets.set('default', [
-				StyleHandler.getImage('${StyleHandler.curStyle.uiDirectoryPath}/ready'),
-				StyleHandler.getImage('${StyleHandler.curStyle.uiDirectoryPath}/set'),
-				StyleHandler.getImage('${StyleHandler.curStyle.uiDirectoryPath}/go')
-			]);
-
-			var introAlts:Array<String> = introAssets.get('default');
-
-			for (value in introAssets.keys())
-			{
-				if (value == curStage)
-				{
-					introAlts = introAssets.get(value);
-				}
-			}
+			var introAlts:Array<String> = [
+				styleHandler.getImage('${styleHandler.curStyle.uiDirectoryPath}/ready'),
+				styleHandler.getImage('${styleHandler.curStyle.uiDirectoryPath}/set'),
+				styleHandler.getImage('${styleHandler.curStyle.uiDirectoryPath}/go')
+			];
 
 			switch (swagCounter)
 			{
@@ -571,10 +566,13 @@ class PlayState extends MusicBeatState
 			openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 		}
 
+		#if debug
 		if (FlxG.keys.justPressed.SEVEN)
-		{
 			FlxG.switchState(new ChartingState());
-		}
+		
+		if (FlxG.keys.justPressed.EIGHT)
+			FlxG.switchState(new AnimationDebug(SONG.player2));
+		#end
 
 		// FlxG.watch.addQuick('VOL', vocals.amplitudeLeft);
 		// FlxG.watch.addQuick('VOLRight', vocals.amplitudeRight);
@@ -606,10 +604,7 @@ class PlayState extends MusicBeatState
 		/* if (FlxG.keys.justPressed.NINE)
 			FlxG.switchState(new Charting()); */
 
-		#if debug
-		if (FlxG.keys.justPressed.EIGHT)
-			FlxG.switchState(new AnimationDebug(SONG.player2));
-		#end
+
 
 		if (startingSong)
 		{
@@ -759,8 +754,6 @@ class PlayState extends MusicBeatState
 						strumLine = opponentStrums;
 				}
 
-				daNote.x = strumLine.strums[daNote.noteData].x + daNote.xOffset;
-
 				if (daNote.y > FlxG.height)
 				{
 					daNote.active = false;
@@ -810,6 +803,8 @@ class PlayState extends MusicBeatState
 						daNote.clipRect = swagRect;
 					}
 				}
+
+				daNote.x = strumLine.strums[daNote.noteData].x + daNote.xOffset;
 
 				if (!daNote.mustPress && daNote.wasGoodHit)
 				{
@@ -974,7 +969,7 @@ class PlayState extends MusicBeatState
 			case 'sick':
 				++sicks;
 
-				if (StyleHandler.curStyle.enableSplashes) {
+				if (styleHandler.curStyle.enableSplashes) {
 					var noteSplash:NoteSplash = splashes.recycle(NoteSplash);
 					noteSplash.splash(daNote, playerStrums.strums[daNote].x, playerStrums.strums[daNote].y);
 					splashes.add(noteSplash);
@@ -989,7 +984,7 @@ class PlayState extends MusicBeatState
 
 		songScore += score;
 
-		rating.loadGraphic(StyleHandler.getImage('${StyleHandler.curStyle.ratingsDirectoryPath}/$daRating'));
+		rating.loadGraphic(styleHandler.getImage('${styleHandler.curStyle.ratingsDirectoryPath}/$daRating'));
 		rating.screenCenter();
 		rating.x = coolText.x - 40;
 		rating.y = coolText.y - 60;
@@ -997,7 +992,7 @@ class PlayState extends MusicBeatState
 		rating.velocity.y -= FlxG.random.int(140, 175);
 		rating.velocity.x -= FlxG.random.int(0, 10);
 
-		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(StyleHandler.getImage('${StyleHandler.curStyle.uiDirectoryPath}/combo'));
+		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(styleHandler.getImage('${styleHandler.curStyle.uiDirectoryPath}/combo'));
 		comboSpr.screenCenter();
 		
 		comboSpr.x = coolText.x + 48;
@@ -1028,7 +1023,7 @@ class PlayState extends MusicBeatState
 		for (i in seperatedScore)
 		{
 			var numScore:FlxSprite = new FlxSprite()/*.loadGraphic('assets/images/' + 'num' + Std.int(i) + '.png')*/;
-			numScore.loadGraphic(StyleHandler.getImage('${StyleHandler.curStyle.numDirectoryPath}/num${Std.string(i)}'));
+			numScore.loadGraphic(styleHandler.getImage('${styleHandler.curStyle.numDirectoryPath}/num${Std.string(i)}'));
 			numScore.screenCenter();
 			numScore.x = coolText.x + (43 * daLoop) - 90;
 			numScore.y = coolText.y + 80;

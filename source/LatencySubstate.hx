@@ -35,7 +35,7 @@ class LatencySubstate extends MusicBeatSubstate
 
 		this.camera = funnyCam;
 
-		strumLine = new ArrowStrums(0, 50, 'default');
+		strumLine = new ArrowStrums(0, 50);
 
 		super();
 

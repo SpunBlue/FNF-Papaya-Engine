@@ -139,14 +139,12 @@ class Character extends FlxSprite
 
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
 	{
-		if (isPlayer && flipX)
+		if (isPlayer && flipX || !isPlayer && flipX)
 		{
-			switch(AnimName) {
-				case 'singLEFT':
-					AnimName = 'singRIGHT';
-				case 'singRIGHT':
-					AnimName = 'singLEFT';
-			}
+			if (AnimName.contains("LEFT"))
+				AnimName.replace("LEFT", "RIGHT")
+			else if (AnimName.contains("RIGHT"))
+				AnimName.replace("RIGHT", "LEFT");
 		}
 
 		animation.play(AnimName, Force, Reversed, Frame);

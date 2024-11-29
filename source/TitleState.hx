@@ -44,8 +44,6 @@ class TitleState extends MusicBeatState
 
 	var wackyImage:FlxSprite;
 
-	final chartEditor:Bool = false;
-
 	override public function create():Void
 	{
 		#if (!web)
@@ -57,9 +55,6 @@ class TitleState extends MusicBeatState
 		// DEBUG BULLSHIT
 
 		super.create();
-
-		Options.init();
-		StyleHandler.init();
 
 		new FlxTimer().start(1, function(tmr:FlxTimer)
 		{
@@ -89,9 +84,6 @@ class TitleState extends MusicBeatState
 
 			transIn = FlxTransitionableState.defaultTransIn;
 			transOut = FlxTransitionableState.defaultTransOut;
-
-			if (chartEditor)
-				FlxG.switchState(new ChartingState());
 
 			FlxG.sound.playMusic('assets/music/freakyMenu' + TitleState.soundExt, 0);
 

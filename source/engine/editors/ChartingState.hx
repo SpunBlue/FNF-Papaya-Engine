@@ -1,5 +1,6 @@
-package;
+package engine.editors;
 
+#if debug
 import openfl.geom.Rectangle;
 import lime.media.AudioBuffer;
 import lime.utils.Bytes;
@@ -46,6 +47,7 @@ import flixel.group.FlxSpriteGroup;
 
 using StringTools;
 
+// TODO: Rewrite this
 class ChartingState extends MusicBeatState
 {
 	var _file:FileReference;
@@ -1440,3 +1442,4 @@ class NameTag extends FlxSpriteGroup {
 		group.add(tag);
 	}
 }
+#end
