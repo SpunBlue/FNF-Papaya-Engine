@@ -470,6 +470,8 @@ class CharacterEditor extends FlxState
                     // reloadCharacter();
                     character.addOffset(selectedAnimation.name, selectedAnimation.offsets[0], selectedAnimation.offsets[1]);
                     character.playAnim(selectedAnimation.name);
+
+                    updateText();
                 }
     
                 if (FlxG.keys.anyJustPressed([Q, E])) {
