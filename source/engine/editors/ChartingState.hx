@@ -565,6 +565,8 @@ class ChartingState extends MusicBeatState
 		return daPos;
 	}
 
+	var tapSound:String = Paths.getSound("tap");
+
 	override function update(elapsed:Float)
 	{
 		curStep = recalculateSteps();
@@ -594,6 +596,19 @@ class ChartingState extends MusicBeatState
 
 			changeSection(curSection - 1, false);
 		}
+
+		curRenderedNotes.forEachAlive((note:Note) -> {
+			if (note.overlaps(strumLine) && note.alpha != 0.5) {
+				note.alpha = 0.5;
+
+				var sound = new FlxSound().loadEmbedded(tapSound);
+				sound.volume = 0.5;
+				// sound.pitch = 0.8 + ((note.noteData + 1) * 0.2);
+				sound.play();
+			}
+			else if (!note.overlaps(strumLine))
+				note.alpha = 1;
+		});
 
 		if (FlxG.mouse.justPressed)
 		{

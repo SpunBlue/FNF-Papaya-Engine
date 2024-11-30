@@ -735,8 +735,10 @@ class PlayState extends MusicBeatState
 			}
 
 			if (botplay) {
-				songScore = 0;
-				health = 0.1;
+				/* songScore = 0;
+				health = 0.1; */
+
+				scoreTxt.text = scoreTxt.text + " - BOTPLAY";
 	
 				for (strum in playerStrums.strums) {
 					if (strum.animation.finished)
@@ -806,44 +808,12 @@ class PlayState extends MusicBeatState
 
 				daNote.x = strumLine.strums[daNote.noteData].x + daNote.xOffset;
 
-				if (!daNote.mustPress && daNote.wasGoodHit)
-				{
-					var altAnim:String = "";
-
-					/*if (SONG.notes[Math.floor(curStep / 16)] != null)
-					{
-						if (SONG.notes[Math.floor(curStep / 16)].altAnim)
-							altAnim = '-alt';
-					}*/
-
-					switch (Math.abs(daNote.noteData))
-					{
-						case 0:
-							dad.playAnim('singLEFT' + altAnim, true);
-						case 1:
-							dad.playAnim('singDOWN' + altAnim, true);
-						case 2:
-							dad.playAnim('singUP' + altAnim, true);
-						case 3:
-							dad.playAnim('singRIGHT' + altAnim, true);
-					}
-					opponentStrums.playAnim(Math.round(Math.abs(daNote.noteData)), "confirm");
-
-					dad.holdTimer = 0;
-
-					if (SONG.needsVoices)
-						vocals.volume = 1;
-
-					daNote.kill();
-					notes.remove(daNote, true);
-					daNote.destroy();
-				}
+				// Make the Opponent sing the notes
+				if (!daNote.mustPress && daNote.noteOnTime)
+					goodNoteHit(daNote);
 				
-				if (botplay) {
-					if (daNote.mustPress && (Options.get("downscroll") == false ? daNote.y <= playerStrums.y : daNote.y >= playerStrums.y)) {
-						if (playerStrums.strums[Math.round(Math.abs(daNote.noteData))].animation.name != "confirm")
-							playerStrums.playAnim(Math.round(Math.abs(daNote.noteData)), "confirm");
-
+				if (botplay && daNote.mustPress) {
+					if (daNote.noteOnTime && (Options.get("downscroll") == false ? daNote.y <= playerStrums.y : daNote.y >= playerStrums.y)) {
 						goodNoteHit(daNote);
 					}
 				}
@@ -892,7 +862,8 @@ class PlayState extends MusicBeatState
 		FlxG.sound.music.volume = 0;
 		vocals.volume = 0;
 
-		Highscore.saveScore(SONG.song, songScore, storyDifficulty);
+		if (!botplay)
+			Highscore.saveScore(SONG.song, songScore, storyDifficulty);
 
 		if (isStoryMode)
 		{
@@ -909,7 +880,8 @@ class PlayState extends MusicBeatState
 
 				FlxG.switchState(new StoryMenuState());
 
-				Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
+				if (!botplay)
+					Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
 
 				FlxG.save.flush();
 			}
@@ -944,12 +916,12 @@ class PlayState extends MusicBeatState
 		var score:Int = 300;
 		var daRating:String = "sick";
 
-		var safeZones:Array<Float> = [0.6, 0.45, 0.3]; // The starting value, and the next in line is the end value. So 1 - 0.74 is a Shit, but a 0.75 - 0.19 is a bad.
+		var safeZones:Array<Float> = [0.6, 0.45, 0.3]; // The starting value, and the next in line is the end value. So 1 - 0.6 is a Shit, but a 0.6 - 0.45 is a bad.
 		var ratings:Array<String> = ['shit', 'bad', 'good'];
 
 		var rating:FlxSprite = new FlxSprite();
 
-		var coolText:FlxText = new FlxText(boyfriend.x - 128, boyfriend.y + 32, 0, Std.string(combo), 32); // not sure why ninjamuffin didn't just do it like this
+		var coolText:FlxText = new FlxText(boyfriend.x - 150, boyfriend.y + 32, 0, Std.string(combo), 32); // not sure why ninjamuffin didn't just do it like this
 		// coolText.screenCenter();
 
 		for (i in 0...ratings.length) {
@@ -1321,33 +1293,56 @@ class PlayState extends MusicBeatState
 	function goodNoteHit(note:Note):Void
 	{
 		if (!note.wasGoodHit)
-		{
-			if (!note.isSustainNote)
-			{
-				health += 0.023;
-
-				popUpScore(note.noteData, note.strumTime);
-				combo += 1;
-			}
-			else
-				health += 0.004;
-
-			switch (note.noteData)
-			{
-				case 0:
-					boyfriend.playAnim('singLEFT', true);
-				case 1:
-					boyfriend.playAnim('singDOWN', true);
-				case 2:
-					boyfriend.playAnim('singUP', true);
-				case 3:
-					boyfriend.playAnim('singRIGHT', true);
-			}
-
-			playerStrums.playAnim(note.noteData, 'confirm');
-
+		{	
 			note.wasGoodHit = true;
 			vocals.volume = 1;
+
+			var altStr:String = "";
+			if (note.altAnimation)
+				altStr = '-alt';
+			
+			if (note.mustPress) {
+				if (!note.isSustainNote)
+				{
+					health += 0.023;
+		
+					popUpScore(note.noteData, note.strumTime);
+					combo += 1;
+				}
+				else
+					health += 0.004;
+
+				switch (note.noteData)
+				{
+					case 0:
+						boyfriend.playAnim('singLEFT' + altStr, true);
+					case 1:
+						boyfriend.playAnim('singDOWN' + altStr, true);
+					case 2:
+						boyfriend.playAnim('singUP' + altStr, true);
+					case 3:
+						boyfriend.playAnim('singRIGHT' + altStr, true);
+				}
+		
+				playerStrums.playAnim(note.noteData, 'confirm');
+			}
+			else {
+				switch (note.noteData)
+				{
+					case 0:
+						dad.playAnim('singLEFT' + altStr, true);
+					case 1:
+						dad.playAnim('singDOWN' + altStr, true);
+					case 2:
+						dad.playAnim('singUP' + altStr, true);
+					case 3:
+						dad.playAnim('singRIGHT' + altStr, true);
+				}
+
+				dad.holdTimer = 0;
+
+				opponentStrums.playAnim(note.noteData, 'confirm');
+			}
 
 			if (!note.isSustainNote)
 			{

@@ -166,6 +166,8 @@ class Note extends FlxSprite
 		}
 	}
 
+	public var noteOnTime:Bool = false;
+
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -186,12 +188,10 @@ class Note extends FlxSprite
 		else
 		{
 			canBeHit = false;
-
-			if (strumTime <= Conductor.songPosition)
-			{
-				wasGoodHit = true;
-			}
 		}
+
+		if (strumTime <= Conductor.songPosition)
+			noteOnTime = true;
 
 		if (tooLate)
 		{

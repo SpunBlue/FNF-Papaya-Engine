@@ -123,7 +123,7 @@ class Character extends FlxSprite
 	{
 		if (!debugMode)
 		{
-			if (animation.exists('danceLeft')) {
+			if (animation.exists('danceLeft') && animation.exists('danceRight')) {
 				danced = !danced;
 
 				if (danced)
@@ -139,14 +139,6 @@ class Character extends FlxSprite
 
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
 	{
-		if (isPlayer && flipX || !isPlayer && flipX)
-		{
-			if (AnimName.contains("LEFT"))
-				AnimName.replace("LEFT", "RIGHT")
-			else if (AnimName.contains("RIGHT"))
-				AnimName.replace("RIGHT", "LEFT");
-		}
-
 		animation.play(AnimName, Force, Reversed, Frame);
 		if (animation.curAnim == null) {
 			trace('Animation is null??? wtf???');
