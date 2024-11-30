@@ -495,30 +495,4 @@ class CharacterEditor extends FlxState
         fileDialog.save(Json.stringify(data), null, '$char.json', "Save Character JSON");
     }
 }
-
-class ArtificialCharacter extends FlxSprite {
-    public var data:CharacterData;
-
-    public function new(character:String) {
-        var path:String = Paths.getJSON('characters/$character');
-        if (Assets.exists(path))
-            data = Json.parse(Assets.getText(path));
-        else {
-            data = {
-                imagePath: "DADDY_DEAREST",
-                animations: [
-                    {
-                        name: "idle",
-                        prefix: "Dad idle dance",
-                        fps: 24,
-                        loop: false,
-                        offsets: [0, 0]
-                    }
-                ]
-            }
-        }
-
-        super();
-    }
-}
 #end
