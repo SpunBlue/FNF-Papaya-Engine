@@ -1,13 +1,5 @@
 package engine.editors;
 
-import flixel.addons.ui.FlxUINumericStepper;
-import flixel.graphics.frames.FlxFramesCollection;
-import flixel.graphics.frames.FlxFrame;
-import lime.ui.FileDialog;
-import flixel.ui.FlxButton;
-import flixel.addons.ui.FlxUICheckBox;
-import flixel.addons.ui.FlxUI;
-import flixel.addons.ui.FlxUITabMenu;
 #if debug
 import flixel.sound.FlxSound;
 import flixel.group.FlxGroup;
@@ -23,6 +15,17 @@ import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import lime.system.Clipboard;
+import flixel.addons.ui.FlxInputText;
+import flixel.addons.ui.FlxUIButton;
+import flixel.addons.ui.FlxUIInputText;
+import flixel.addons.ui.FlxUINumericStepper;
+import flixel.graphics.frames.FlxFramesCollection;
+import flixel.graphics.frames.FlxFrame;
+import lime.ui.FileDialog;
+import flixel.ui.FlxButton;
+import flixel.addons.ui.FlxUICheckBox;
+import flixel.addons.ui.FlxUI;
+import flixel.addons.ui.FlxUITabMenu;
 
 using StringTools;
 
@@ -55,6 +58,18 @@ class CharacterEditor extends FlxState
 
     var camXStepper:FlxUINumericStepper;
     var camYStepper:FlxUINumericStepper;
+
+    var animName:FlxInputText;
+    var animPrefix:FlxInputText;
+    var animIndicies:FlxInputText;
+
+    final helpShit:String = "E, and Q, to select an animation.\n"
+        + "W, A, S, and D, to move offsets.\n"
+        + "I, J, K, and L, to move camera.\n"
+        + "[, and ], to zoom in and out.\n"
+        + "X delete selected animation.\n"
+        + "TAB to toggle \"isPlayer\".\n"
+        + "P to randomize the song playing.";
 
     public function new(?character:String = 'bf', ?data:CharacterData) {
         if (character != null)
@@ -134,12 +149,14 @@ class CharacterEditor extends FlxState
         add(camCursor);
 
         // ui
-        offsetText.setFormat(null, 24, FlxColor.WHITE, LEFT, FlxTextBorderStyle.SHADOW, FlxColor.GRAY);
+        offsetText.setPosition(20, 20);
+        offsetText.setFormat(null, 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.SHADOW, FlxColor.GRAY);
         offsetText.camera = uiCam;
         add(offsetText);
         
         final tabs = [
-            {name: "Character", label: "Character"}
+            {name: "Character", label: "Character"},
+            {name: "Animations", label: "Animations"}
         ];
         ui_box = new FlxUITabMenu(null, tabs, true);
         
@@ -149,7 +166,7 @@ class CharacterEditor extends FlxState
         ui_box.camera = uiCam;
 
         // Assistant Functions
-        final generateCheckBox = function(x:Float, y:Float, name:String, callback:FlxUICheckBox->Void, menu:FlxUI, ?startValue:Null<Bool>, ?defValue:Bool = false) {
+        final generateCheckBox = function(x:Float, y:Float, name:String, ?callback:FlxUICheckBox->Void, menu:FlxUI, ?startValue:Null<Bool>, ?defValue:Bool = false) {
             var box = new FlxUICheckBox(x, y, null, null, name, 80);
 
             if (startValue != null)
@@ -157,7 +174,8 @@ class CharacterEditor extends FlxState
             else
                 box.checked = defValue;
 
-            box.callback = () -> { callback(box); };
+            if (callback != null)
+                box.callback = () -> { callback(box); };
 
             menu.add(box);
         };
@@ -166,18 +184,35 @@ class CharacterEditor extends FlxState
         var character_ui = new FlxUI(null, ui_box);
         character_ui.name = "Character";
 
-        var selectCharacter:FlxButton = new FlxButton(20, 20, "Load Character", ()->{
+        var selectCharacter:FlxUIButton = new FlxUIButton(20, 20, "Load Character", ()->{
             var fileDialog = new FileDialog();
 
             fileDialog.onOpen.add((res)->{
-                FlxG.switchState(new CharacterEditor(null, Json.parse(res)));
+                data = Json.parse(res);
+                char = "unknown"; // doesn't really matter anyway
+
+                if (data.positionOffsets == null)
+                    data.positionOffsets = [0, 0];
+                if (data.camOffsets == null)
+                    data.camOffsets = [0, 0];
+
+                xStepper.value = data.positionOffsets[0];
+                yStepper.value = data.positionOffsets[1];
+
+                camXStepper.value = data.camOffsets[0];
+                camYStepper.value = data.camOffsets[1];
+
+                curAnimIndex = 0;
+                selectedAnimation = data.animations[0];
+
+                reloadCharacter();
             });
 
             fileDialog.open(null, null, "Character JSON");
         });
         character_ui.add(selectCharacter);
 
-        var saveCharacter:FlxButton = new FlxButton(120, 20, "Save Character", saveCharacter);
+        var saveCharacter:FlxUIButton = new FlxUIButton(120, 20, "Save Character", saveCharacter);
         character_ui.add(saveCharacter);
 
         generateCheckBox(20, 50, "Flip X", (box) -> {
@@ -220,9 +255,52 @@ class CharacterEditor extends FlxState
             camYStepper.value = data.camOffsets[1];
         character_ui.add(camYStepper);
 
+        // Animation Menu
+        var animation_ui = new FlxUI(null, ui_box);
+        animation_ui.name = "Animations";
+
+        animName = new FlxUIInputText(20, 20, 128, "Name");
+        animation_ui.add(animName);
+
+        animPrefix = new FlxUIInputText(20, 40, 128, "Prefix");
+        animation_ui.add(animPrefix);
+
+        animIndicies = new FlxUIInputText(20, 60, 128, "Indicies (ex: '0,1,2,3')");
+        animation_ui.add(animIndicies);
+
+        var fpsStepper = new FlxUINumericStepper(20, 80, 1, 24, 1, 1000, 0);
+        animation_ui.add(fpsStepper);
+
+        var loop:Bool = false;
+        generateCheckBox(100, 80, "Loop", (box)->{
+            loop = box.checked;
+        }, animation_ui, false, false);
+
+        var addAnimButt:FlxUIButton = new FlxUIButton(20, 100, "Add Animation", ()->{
+            var framesStr = animIndicies.text.split(',');
+            var frames:Array<Int> = [];
+            for (str in framesStr)
+                frames.push(Std.parseInt(str));
+
+            var anim:AnimationData = {
+                name: animName.text,
+                prefix: animPrefix.text,
+                fps: Std.int(fpsStepper.value),
+                offsets: [0, 0],
+                indices: frames,
+                loop: loop
+            }
+
+            animName.text = "";
+            animPrefix.text = "";
+            animIndicies.text = "";
+        });
+        animation_ui.add(addAnimButt);
+
         add(ui_box);
 
         ui_box.addGroup(character_ui);
+        ui_box.addGroup(animation_ui);
 
         FlxG.camera.focusOn(character.getMidpoint());
 
@@ -267,7 +345,7 @@ class CharacterEditor extends FlxState
         }
     }
 
-    override function update(elapsed:Float) {
+    override public function update(elapsed:Float) {
         if (FlxG.keys.pressed.J)
             FlxG.camera.scroll.x -= 5;
         else if (FlxG.keys.pressed.K)
@@ -333,7 +411,7 @@ class CharacterEditor extends FlxState
         if (vocals != null && vocals.playing && (vocals.time > music.time + 20 || vocals.time < music.time - 20))
 			vocals.time = music.time;
 
-        offsetText.text = '';
+        offsetText.text = 'Offsets: \n';
         for (animation in data.animations) {
             if (animation.offsets == null)
                 animation.offsets = [0, 0];
@@ -342,8 +420,9 @@ class CharacterEditor extends FlxState
             if (data.animations[curAnimIndex] == animation)
                 sub = '<';
 
-            offsetText.text += '"${animation.name}" : [${animation.offsets[0]}, ${animation.offsets[1]}] $sub\n';
+            offsetText.text += '"${animation.name}": [${animation.offsets[0]}, ${animation.offsets[1]}] $sub\n';
         }
+        offsetText.text += '\nDisplay Settings: \n"isPlayer": $isPlayer\n\nControls: \n$helpShit';
 
         if (character.animation.curAnim.name != selectedAnimation.name || character.animation.curAnim.finished)
             character.playAnim(selectedAnimation.name);
@@ -353,6 +432,12 @@ class CharacterEditor extends FlxState
             addition = 5;
 
         xStepper.stepSize = yStepper.stepSize = camXStepper.stepSize = camYStepper.stepSize = addition;
+
+        if (FlxG.keys.justPressed.X && data.animations.length > 1) {
+            data.animations.remove(data.animations[curAnimIndex]);
+            selectedAnimation = data.animations[0];
+            curAnimIndex = 0;
+        }
 
         if (!FlxG.mouse.overlaps(ui_box)) {
             if (!FlxG.keys.pressed.CONTROL) {
