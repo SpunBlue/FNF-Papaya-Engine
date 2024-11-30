@@ -15,7 +15,7 @@ import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import lime.system.Clipboard;
-import flixel.addons.ui.FlxInputText;
+import flixel.text.FlxInputText;
 import flixel.addons.ui.FlxUIButton;
 import flixel.addons.ui.FlxUIInputText;
 import flixel.addons.ui.FlxUINumericStepper;
@@ -61,7 +61,7 @@ class CharacterEditor extends FlxState
 
     var animName:FlxInputText;
     var animPrefix:FlxInputText;
-    var animIndicies:FlxInputText;
+    var animIndices:FlxInputText;
 
     final helpShit:String = "E, and Q, to select an animation.\n"
         + "W, A, S, and D, to move offsets.\n"
@@ -259,14 +259,29 @@ class CharacterEditor extends FlxState
         var animation_ui = new FlxUI(null, ui_box);
         animation_ui.name = "Animations";
 
-        animName = new FlxUIInputText(20, 20, 128, "Name");
+        var animNameText:FlxText = new FlxText(20, 20);
+        animNameText.text = "Animation Name";
+        animation_ui.add(animNameText);
+
+        animName = new FlxInputText(120, 20, 128);
+        animName.camera = uiCam;
         animation_ui.add(animName);
 
-        animPrefix = new FlxUIInputText(20, 40, 128, "Prefix");
+        var animPrefixText:FlxText = new FlxText(20, 40);
+        animPrefixText.text = "Animation Prefix";
+        animation_ui.add(animPrefixText);
+
+        animPrefix = new FlxInputText(120, 40, 128);
+        animPrefix.camera = uiCam;
         animation_ui.add(animPrefix);
 
-        animIndicies = new FlxUIInputText(20, 60, 128, "Indicies (ex: '0,1,2,3')");
-        animation_ui.add(animIndicies);
+        var animIndicesText:FlxText = new FlxText(20, 60);
+        animIndicesText.text = "Animation Indices";
+        animation_ui.add(animIndicesText);
+
+        animIndices = new FlxInputText(120, 60, 128);
+        animIndices.camera = uiCam;
+        animation_ui.add(animIndices);
 
         var fpsStepper = new FlxUINumericStepper(20, 80, 1, 24, 1, 1000, 0);
         animation_ui.add(fpsStepper);
@@ -277,7 +292,7 @@ class CharacterEditor extends FlxState
         }, animation_ui, false, false);
 
         var addAnimButt:FlxUIButton = new FlxUIButton(20, 100, "Add Animation", ()->{
-            var framesStr = animIndicies.text.split(',');
+            var framesStr = animIndices.text.split(',');
             var frames:Array<Int> = [];
             for (str in framesStr)
                 frames.push(Std.parseInt(str));
@@ -291,9 +306,14 @@ class CharacterEditor extends FlxState
                 loop: loop
             }
 
+            data.animations.push(anim);
+
             animName.text = "";
             animPrefix.text = "";
-            animIndicies.text = "";
+            animIndices.text = "";
+
+            reloadCharacter();
+            updateText();
         });
         animation_ui.add(addAnimButt);
 
@@ -310,6 +330,7 @@ class CharacterEditor extends FlxState
         FlxG.mouse.visible = true;
 
         playRandomInst();
+        updateText();
     }
 
     function reloadCharacter() {
@@ -346,29 +367,31 @@ class CharacterEditor extends FlxState
     }
 
     override public function update(elapsed:Float) {
-        if (FlxG.keys.pressed.J)
-            FlxG.camera.scroll.x -= 5;
-        else if (FlxG.keys.pressed.K)
-            FlxG.camera.scroll.y += 5;
-        else if (FlxG.keys.pressed.I)
-            FlxG.camera.scroll.y -= 5;
-        else if (FlxG.keys.pressed.L)
-            FlxG.camera.scroll.x += 5;
-
-        if (FlxG.keys.pressed.LBRACKET)
-            FlxG.camera.zoom -= 0.001;
-        else if (FlxG.keys.pressed.RBRACKET)
-            FlxG.camera.zoom += 0.001;
-
-        if (FlxG.keys.justPressed.P)
-            playRandomInst();
-        else if (FlxG.keys.justPressed.R)
-            reloadCharacter();
-        else if (FlxG.keys.justPressed.TAB) {
-            isPlayer = !isPlayer;
-
-            reloadCharacter();
-            FlxG.camera.focusOn(character.getMidpoint());
+        if (!FlxG.mouse.overlaps(ui_box, uiCam)) {
+            if (FlxG.keys.pressed.J)
+                FlxG.camera.scroll.x -= 5;
+            else if (FlxG.keys.pressed.K)
+                FlxG.camera.scroll.y += 5;
+            else if (FlxG.keys.pressed.I)
+                FlxG.camera.scroll.y -= 5;
+            else if (FlxG.keys.pressed.L)
+                FlxG.camera.scroll.x += 5;
+    
+            if (FlxG.keys.pressed.LBRACKET)
+                FlxG.camera.zoom -= 0.001;
+            else if (FlxG.keys.pressed.RBRACKET)
+                FlxG.camera.zoom += 0.001;
+    
+            if (FlxG.keys.justPressed.P)
+                playRandomInst();
+            else if (FlxG.keys.justPressed.R)
+                reloadCharacter();
+            else if (FlxG.keys.justPressed.TAB) {
+                isPlayer = !isPlayer;
+    
+                reloadCharacter();
+                FlxG.camera.focusOn(character.getMidpoint());
+            }
         }
         
         super.update(elapsed);
@@ -411,19 +434,6 @@ class CharacterEditor extends FlxState
         if (vocals != null && vocals.playing && (vocals.time > music.time + 20 || vocals.time < music.time - 20))
 			vocals.time = music.time;
 
-        offsetText.text = 'Offsets: \n';
-        for (animation in data.animations) {
-            if (animation.offsets == null)
-                animation.offsets = [0, 0];
-
-            var sub:String = "";
-            if (data.animations[curAnimIndex] == animation)
-                sub = '<';
-
-            offsetText.text += '"${animation.name}": [${animation.offsets[0]}, ${animation.offsets[1]}] $sub\n';
-        }
-        offsetText.text += '\nDisplay Settings: \n"isPlayer": $isPlayer\n\nControls: \n$helpShit';
-
         if (character.animation.curAnim.name != selectedAnimation.name || character.animation.curAnim.finished)
             character.playAnim(selectedAnimation.name);
 
@@ -437,9 +447,11 @@ class CharacterEditor extends FlxState
             data.animations.remove(data.animations[curAnimIndex]);
             selectedAnimation = data.animations[0];
             curAnimIndex = 0;
+
+            updateText();
         }
 
-        if (!FlxG.mouse.overlaps(ui_box)) {
+        if (!FlxG.mouse.overlaps(ui_box, uiCam)) {
             if (!FlxG.keys.pressed.CONTROL) {
                 if (FlxG.keys.anyJustPressed([A, S, W, D])) {
                     // for some reason this has to be flipped around?
@@ -467,6 +479,8 @@ class CharacterEditor extends FlxState
                         ++curAnimIndex;
     
                     selectedAnimation = data.animations[curAnimIndex];
+
+                    updateText();
                 }
             }
             else {
@@ -488,11 +502,27 @@ class CharacterEditor extends FlxState
         }
     }
 
+    function updateText()
+    {
+        offsetText.text = 'Offsets: \n';
+        for (animation in data.animations) {
+            if (animation.offsets == null)
+                animation.offsets = [0, 0];
+
+            var sub:String = "";
+            if (data.animations[curAnimIndex] == animation)
+                sub = '<';
+
+            offsetText.text += '"${animation.name}": [${animation.offsets[0]}, ${animation.offsets[1]}] $sub\n';
+        }
+        offsetText.text += '\nDisplay Settings: \n"isPlayer": $isPlayer\n\nControls: \n$helpShit';
+    }
+
     function saveCharacter()
     {
         var fileDialog = new FileDialog();
 
-        fileDialog.save(Json.stringify(data), null, '$char.json', "Save Character JSON");
+        fileDialog.save(Json.stringify(data, "\t"), null, '$char.json', "Save Character JSON");
     }
 }
 #end

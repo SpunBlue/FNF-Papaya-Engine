@@ -10,8 +10,7 @@ This Engine is NOT made for Soft-modding. It is purely for Hard-coded modificati
 
 - Fork the Repository
 - Use GitHub Desktop or Git to clone the Repo to your device
-- Install Haxe, Lime, OpenFL, and Flixel.
-- Install the libraries located in the `Project.xml`.
+- Follow this [Guide](build.md).
 - Open the Repo in VS:Code and begin modding!
 
 ### Can I contribute to the Engine?

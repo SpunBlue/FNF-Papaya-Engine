@@ -51,7 +51,7 @@
 	<assets path="assets/fonts" preload="true" embed='true'/>
 	<!-- _______________________________ Libraries ______________________________ -->
 
-	<haxelib name="flixel" />
+	<haxelib name="flixel" /> <!-- I am using the developer branch! `haxelib git flixel https://github.com/HaxeFlixel/flixel` -->
 	<haxedev set='webgl' />
 
 	<!--In case you want to use the addons package-->
