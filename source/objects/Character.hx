@@ -1,5 +1,7 @@
 package objects;
 
+import engine.editors.CharacterEditor;
+import flixel.FlxG;
 import engine.Conductor;
 import engine.Paths;
 import haxe.Json;
@@ -22,7 +24,7 @@ class Character extends FlxSprite
 
 	public var camOffsets:Array<Float> = [0, 0];
 
-	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
+	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false, ?data:CharacterData = null)
 	{
 		animOffsets = new Map<String, Array<Dynamic>>();
 		super(x, y);
@@ -33,10 +35,18 @@ class Character extends FlxSprite
 		var tex:FlxAtlasFrames;
 		antialiasing = true;
 		
-		var str = Assets.getText("assets/data/characters/" + character + ".json");
-		var data:CharacterData = null;
-		if (str != null)
-			data = Json.parse(str);
+		if (data == null) {
+			var str = Assets.getText("assets/data/characters/" + character + ".json");
+			if (str != null)
+				data = Json.parse(str);
+			else {
+				trace('Couldn\'t locate Character ($character).');
+				
+				#if debug
+				FlxG.switchState(new CharacterEditor(character));
+				#end
+			}
+		}
 
 		switch (curCharacter)
 		{

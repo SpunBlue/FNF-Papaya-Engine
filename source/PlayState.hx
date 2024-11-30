@@ -1,6 +1,6 @@
 package;
 
-import engine.editors.AnimationDebug;
+import engine.editors.CharacterEditor;
 import engine.editors.ChartingState;
 import engine.Styles.LocalStyle;
 import engine.HelpfulAPI;
@@ -162,7 +162,6 @@ class PlayState extends MusicBeatState
 		stageCurtains.antialiasing = true;
 		stageCurtains.scrollFactor.set(1.3, 1.3);
 		stageCurtains.active = false;
-
 		add(stageCurtains);
 
 		if (SONG.girlfriend == null)
@@ -571,7 +570,7 @@ class PlayState extends MusicBeatState
 			FlxG.switchState(new ChartingState());
 		
 		if (FlxG.keys.justPressed.EIGHT)
-			FlxG.switchState(new AnimationDebug(SONG.player2));
+			FlxG.switchState(new CharacterEditor(SONG.player1));
 		#end
 
 		// FlxG.watch.addQuick('VOL', vocals.amplitudeLeft);
@@ -641,9 +640,9 @@ class PlayState extends MusicBeatState
 
 		if (generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null)
 		{
-			if (camFollow.x != dad.getMidpoint().x + 150 && !PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection)
+			if (!PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection)
 				camFollow.setPosition(dad.getMidpoint().x + dad.camOffsets[0], dad.getMidpoint().y + dad.camOffsets[1]);
-			else if (PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection && camFollow.x != boyfriend.getMidpoint().x - 100)
+			else
 				camFollow.setPosition(boyfriend.getMidpoint().x + boyfriend.camOffsets[0], boyfriend.getMidpoint().y + boyfriend.camOffsets[1]);
 		}
 
