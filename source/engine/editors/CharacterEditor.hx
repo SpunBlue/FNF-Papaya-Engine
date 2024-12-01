@@ -62,6 +62,7 @@ class CharacterEditor extends FlxState
     var animName:FlxInputText;
     var animPrefix:FlxInputText;
     var animIndices:FlxInputText;
+    var imageText:FlxInputText;
 
     final helpShit:String = "E, and Q, to select an animation.\n"
         + "W, A, S, and D, to move offsets.\n"
@@ -69,7 +70,8 @@ class CharacterEditor extends FlxState
         + "[, and ], to zoom in and out.\n"
         + "X delete selected animation.\n"
         + "TAB to toggle \"isPlayer\".\n"
-        + "P to randomize the song playing.";
+        + "P to randomize the song playing.\n"
+        + "R to reload everything.";
 
     public function new(?character:String = 'bf', ?data:CharacterData) {
         if (character != null)
@@ -196,6 +198,8 @@ class CharacterEditor extends FlxState
                 if (data.camOffsets == null)
                     data.camOffsets = [0, 0];
 
+                imageText.text = data.imagePath;
+
                 xStepper.value = data.positionOffsets[0];
                 yStepper.value = data.positionOffsets[1];
 
@@ -215,42 +219,64 @@ class CharacterEditor extends FlxState
         var saveCharacter:FlxUIButton = new FlxUIButton(120, 20, "Save Character", saveCharacter);
         character_ui.add(saveCharacter);
 
-        generateCheckBox(20, 50, "Flip X", (box) -> {
+        var textImageText = new FlxText(20, 50, 100, "Image Path");
+        textImageText.setFormat(null, 8, FlxColor.WHITE);
+        character_ui.add(textImageText);
+
+        imageText = new FlxInputText(100, 50, 128, data.imagePath);
+        imageText.camera = uiCam;
+        imageText.onEnter.add((text:String)->{
+            var old:String = data.imagePath;
+
+            try {
+                data.imagePath = imageText.text;
+                reloadCharacter();
+            }
+            catch (e:Dynamic) {
+                trace('Failed to reload character with new image path! ($e).');
+
+                data.imagePath = old;
+                reloadCharacter();
+            }
+        });
+        character_ui.add(imageText);
+
+        generateCheckBox(20, 80, "Flip X", (box) -> {
             data.flipX = box.checked;
             reloadCharacter();
         }, character_ui, data.flipX, false);
 
-        generateCheckBox(120, 50, "Antialiasing", (box) -> {
+        generateCheckBox(120, 80, "Antialiasing", (box) -> {
             data.antialiasing = box.checked;
             reloadCharacter();
         }, character_ui, data.antialiasing, true);
 
-        var positionOffsetsText:FlxText = new FlxText(20, 100);
+        var positionOffsetsText:FlxText = new FlxText(20, 130);
         positionOffsetsText.setFormat(null, 12, FlxColor.WHITE);
         positionOffsetsText.text = "Position Offsets (X, Y)";
         character_ui.add(positionOffsetsText);
 
-        xStepper = new FlxUINumericStepper(20, 120, 5, 0, -4096, 4096, 1);
+        xStepper = new FlxUINumericStepper(20, 150, 5, 0, -4096, 4096, 1);
         if (data.positionOffsets != null)
             xStepper.value = data.positionOffsets[0];
         character_ui.add(xStepper);
 
-        yStepper = new FlxUINumericStepper(120, 120, 5, 0, -4096, 4096, 1);
+        yStepper = new FlxUINumericStepper(120, 150, 5, 0, -4096, 4096, 1);
         if (data.positionOffsets != null)
             yStepper.value = data.positionOffsets[1];
         character_ui.add(yStepper);
 
-        var camOffsetsText:FlxText = new FlxText(20, 170);
+        var camOffsetsText:FlxText = new FlxText(20, 200);
         camOffsetsText.setFormat(null, 12, FlxColor.WHITE);
         camOffsetsText.text = "Camera Position Offsets (X, Y)";
         character_ui.add(camOffsetsText);
 
-        camXStepper = new FlxUINumericStepper(20, 190, 5, 0, -4096, 4096, 1);
+        camXStepper = new FlxUINumericStepper(20, 220, 5, 0, -4096, 4096, 1);
         if (data.camOffsets != null)
             camXStepper.value = data.camOffsets[0];
         character_ui.add(camXStepper);
 
-        camYStepper = new FlxUINumericStepper(120, 190, 5, 0, -4096, 4096, 1);
+        camYStepper = new FlxUINumericStepper(120, 220, 5, 0, -4096, 4096, 1);
         if (data.camOffsets != null)
             camYStepper.value = data.camOffsets[1];
         character_ui.add(camYStepper);
@@ -283,7 +309,7 @@ class CharacterEditor extends FlxState
         animIndices.camera = uiCam;
         animation_ui.add(animIndices);
 
-        var fpsStepper = new FlxUINumericStepper(20, 80, 1, 24, 1, 1000, 0);
+        var fpsStepper = new FlxUINumericStepper(20, 80, 1, 24, 1, 60, 0);
         animation_ui.add(fpsStepper);
 
         var loop:Bool = false;
@@ -292,10 +318,14 @@ class CharacterEditor extends FlxState
         }, animation_ui, false, false);
 
         var addAnimButt:FlxUIButton = new FlxUIButton(20, 100, "Add Animation", ()->{
-            var framesStr = animIndices.text.split(',');
-            var frames:Array<Int> = [];
-            for (str in framesStr)
-                frames.push(Std.parseInt(str));
+            var frames:Array<Int> = null;
+
+            if (animIndices.text.length > 0) {
+                var framesStr = animIndices.text.split(',');
+                frames = [];
+                for (str in framesStr)
+                    frames.push(Std.parseInt(str));
+            }
 
             var anim:AnimationData = {
                 name: animName.text,
@@ -342,6 +372,7 @@ class CharacterEditor extends FlxState
             position.set(770, 450);
 
         character = new Character(position.x, position.y, char, false, data);
+        character.debugMode = true;
         drawGroup.add(character);
     }
 
@@ -385,10 +416,11 @@ class CharacterEditor extends FlxState
             if (FlxG.keys.justPressed.P)
                 playRandomInst();
             else if (FlxG.keys.justPressed.R)
-                reloadCharacter();
+                FlxG.switchState(new CharacterEditor("unknown", data));
             else if (FlxG.keys.justPressed.TAB) {
                 isPlayer = !isPlayer;
-    
+                
+                updateText();
                 reloadCharacter();
                 FlxG.camera.focusOn(character.getMidpoint());
             }
@@ -434,7 +466,7 @@ class CharacterEditor extends FlxState
         if (vocals != null && vocals.playing && (vocals.time > music.time + 20 || vocals.time < music.time - 20))
 			vocals.time = music.time;
 
-        if (character.animation.curAnim.name != selectedAnimation.name || character.animation.curAnim.finished)
+        if (character.animation.curAnim != null && (character.animation.curAnim.name != selectedAnimation.name || character.animation.curAnim.finished))
             character.playAnim(selectedAnimation.name);
 
         var addition:Int = 1;
@@ -525,6 +557,14 @@ class CharacterEditor extends FlxState
         var fileDialog = new FileDialog();
 
         fileDialog.save(Json.stringify(data, "\t"), null, '$char.json', "Save Character JSON");
+    }
+
+    override function destroy() {
+        music.stop();
+        if (vocals != null)
+            vocals.stop();
+
+        super.destroy();
     }
 }
 #end
