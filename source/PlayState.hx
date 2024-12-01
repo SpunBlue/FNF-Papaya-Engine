@@ -1,7 +1,7 @@
 package;
 
-import engine.editors.CharacterEditor;
 import engine.editors.ChartingState;
+import engine.editors.CharacterEditor;
 import engine.Styles.LocalStyle;
 import engine.HelpfulAPI;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
@@ -567,7 +567,7 @@ class PlayState extends MusicBeatState
 
 		#if debug
 		if (FlxG.keys.justPressed.SEVEN)
-			FlxG.switchState(new ChartingState());
+			FlxG.switchState(new ChartingState(SONG));
 		
 		if (FlxG.keys.justPressed.EIGHT)
 			FlxG.switchState(new CharacterEditor(SONG.player1));

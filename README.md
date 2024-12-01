@@ -1,5 +1,5 @@
 # FNF-Papaya-Engine
-A Friday Night Funkin' Engine made for hardcoded modifications. Created for the KAVIFUNK Mod to use as a base.
+A Friday Night Funkin' Engine made for hardcoded modifications. Created for the KAVIFUNK Mod to use as a base. [Credits](credits.md)
 
 ## What is this engine for?
 This engine was made as a quick-start for Hard-modded modifications to Friday Night Funkin'. This way, you don't have to use the base game or another FNF Engine and be forced

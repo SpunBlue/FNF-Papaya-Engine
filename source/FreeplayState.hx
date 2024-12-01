@@ -189,12 +189,8 @@ class FreeplayState extends MusicBeatState
 			catch (e:Dynamic) {
 				trace('Error loading song: $e');
 
-				#if debug
-				FlxG.switchState(new ChartingState());
-				#else
 				var rand:Float = new FlxRandom().int(1, 3);
 				FlxG.sound.play(Paths.getSound("badnoise" + rand));
-				#end
 			}
 		}
 	}

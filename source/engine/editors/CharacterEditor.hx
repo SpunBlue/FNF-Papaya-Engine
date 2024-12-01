@@ -68,7 +68,7 @@ class CharacterEditor extends FlxState
         + "W, A, S, and D, to move offsets.\n"
         + "I, J, K, and L, to move camera.\n"
         + "[, and ], to zoom in and out.\n"
-        + "X delete selected animation.\n"
+        + "X to delete the selected animation.\n"
         + "TAB to toggle \"isPlayer\".\n"
         + "P to randomize the song playing.\n"
         + "R to reload everything.";
