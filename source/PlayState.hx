@@ -1,5 +1,8 @@
 package;
 
+import engine.editors.ChartingState;
+import engine.editors.CharacterEditor;
+import engine.Styles.LocalStyle;
 import engine.HelpfulAPI;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import engine.Song;
@@ -119,6 +122,8 @@ class PlayState extends MusicBeatState
 
 	var inCutscene:Bool = false;
 
+	private var styleHandler:LocalStyle;
+
 	override public function create()
 	{
 		// var gameCam:FlxCamera = FlxG.camera;
@@ -157,7 +162,6 @@ class PlayState extends MusicBeatState
 		stageCurtains.antialiasing = true;
 		stageCurtains.scrollFactor.set(1.3, 1.3);
 		stageCurtains.active = false;
-
 		add(stageCurtains);
 
 		if (SONG.girlfriend == null)
@@ -193,8 +197,9 @@ class PlayState extends MusicBeatState
 		/*strumLine = new FlxSprite(0, 50).makeGraphic(FlxG.width, 10);
 		strumLine.scrollFactor.set();*/
 
-		if (!Options.get('forceDefaultStyle'))
-			StyleHandler.curStyle = StyleHandler.styles.get(SONG.visualStyle);
+		styleHandler = new LocalStyle(StyleHandler.getData());
+		if (!Options.get('forceDefaultStyle') && SONG.visualStyle != null)
+			styleHandler.setStyle(SONG.visualStyle);
 
 		generateStaticArrows(0);
 		add(opponentStrums);
@@ -204,8 +209,8 @@ class PlayState extends MusicBeatState
 
 		splashes = new FlxTypedGroup<NoteSplash>();
 
-		if (StyleHandler.curStyle.enableSplashes) {
-			var tempSplash:NoteSplash = new NoteSplash();
+		if (styleHandler.curStyle.enableSplashes) {
+			var tempSplash:NoteSplash = new NoteSplash(0, 0, styleHandler);
 			splashes.add(tempSplash);
 			tempSplash.kill();
 		}
@@ -239,7 +244,7 @@ class PlayState extends MusicBeatState
 		else
 			hbY = FlxG.height * 0.1;
 
-		healthBarBG = new FlxSprite(0, hbY).loadGraphic(StyleHandler.getImage('${StyleHandler.curStyle.uiDirectoryPath}/healthBar'));
+		healthBarBG = new FlxSprite(0, hbY).loadGraphic(styleHandler.getImage('${styleHandler.curStyle.uiDirectoryPath}/healthBar'));
 		healthBarBG.screenCenter(X);
 		healthBarBG.scrollFactor.set();
 		add(healthBarBG);
@@ -300,22 +305,11 @@ class PlayState extends MusicBeatState
 			gf.dance();
 			boyfriend.playAnim('idle');
 
-			var introAssets:Map<String, Array<String>> = new Map<String, Array<String>>();
-			introAssets.set('default', [
-				StyleHandler.getImage('${StyleHandler.curStyle.uiDirectoryPath}/ready'),
-				StyleHandler.getImage('${StyleHandler.curStyle.uiDirectoryPath}/set'),
-				StyleHandler.getImage('${StyleHandler.curStyle.uiDirectoryPath}/go')
-			]);
-
-			var introAlts:Array<String> = introAssets.get('default');
-
-			for (value in introAssets.keys())
-			{
-				if (value == curStage)
-				{
-					introAlts = introAssets.get(value);
-				}
-			}
+			var introAlts:Array<String> = [
+				styleHandler.getImage('${styleHandler.curStyle.uiDirectoryPath}/ready'),
+				styleHandler.getImage('${styleHandler.curStyle.uiDirectoryPath}/set'),
+				styleHandler.getImage('${styleHandler.curStyle.uiDirectoryPath}/go')
+			];
 
 			switch (swagCounter)
 			{
@@ -571,10 +565,13 @@ class PlayState extends MusicBeatState
 			openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 		}
 
+		#if debug
 		if (FlxG.keys.justPressed.SEVEN)
-		{
-			FlxG.switchState(new ChartingState());
-		}
+			FlxG.switchState(new ChartingState(SONG));
+		
+		if (FlxG.keys.justPressed.EIGHT)
+			FlxG.switchState(new CharacterEditor(SONG.player1));
+		#end
 
 		// FlxG.watch.addQuick('VOL', vocals.amplitudeLeft);
 		// FlxG.watch.addQuick('VOLRight', vocals.amplitudeRight);
@@ -606,10 +603,7 @@ class PlayState extends MusicBeatState
 		/* if (FlxG.keys.justPressed.NINE)
 			FlxG.switchState(new Charting()); */
 
-		#if debug
-		if (FlxG.keys.justPressed.EIGHT)
-			FlxG.switchState(new AnimationDebug(SONG.player2));
-		#end
+
 
 		if (startingSong)
 		{
@@ -646,9 +640,9 @@ class PlayState extends MusicBeatState
 
 		if (generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null)
 		{
-			if (camFollow.x != dad.getMidpoint().x + 150 && !PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection)
+			if (!PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection)
 				camFollow.setPosition(dad.getMidpoint().x + dad.camOffsets[0], dad.getMidpoint().y + dad.camOffsets[1]);
-			else if (PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection && camFollow.x != boyfriend.getMidpoint().x - 100)
+			else
 				camFollow.setPosition(boyfriend.getMidpoint().x + boyfriend.camOffsets[0], boyfriend.getMidpoint().y + boyfriend.camOffsets[1]);
 		}
 
@@ -740,8 +734,10 @@ class PlayState extends MusicBeatState
 			}
 
 			if (botplay) {
-				songScore = 0;
-				health = 0.1;
+				/* songScore = 0;
+				health = 0.1; */
+
+				scoreTxt.text = scoreTxt.text + " - BOTPLAY";
 	
 				for (strum in playerStrums.strums) {
 					if (strum.animation.finished)
@@ -758,8 +754,6 @@ class PlayState extends MusicBeatState
 					case false:
 						strumLine = opponentStrums;
 				}
-
-				daNote.x = strumLine.strums[daNote.noteData].x + daNote.xOffset;
 
 				if (daNote.y > FlxG.height)
 				{
@@ -811,44 +805,14 @@ class PlayState extends MusicBeatState
 					}
 				}
 
-				if (!daNote.mustPress && daNote.wasGoodHit)
-				{
-					var altAnim:String = "";
+				daNote.x = strumLine.strums[daNote.noteData].x + daNote.xOffset;
 
-					/*if (SONG.notes[Math.floor(curStep / 16)] != null)
-					{
-						if (SONG.notes[Math.floor(curStep / 16)].altAnim)
-							altAnim = '-alt';
-					}*/
-
-					switch (Math.abs(daNote.noteData))
-					{
-						case 0:
-							dad.playAnim('singLEFT' + altAnim, true);
-						case 1:
-							dad.playAnim('singDOWN' + altAnim, true);
-						case 2:
-							dad.playAnim('singUP' + altAnim, true);
-						case 3:
-							dad.playAnim('singRIGHT' + altAnim, true);
-					}
-					opponentStrums.playAnim(Math.round(Math.abs(daNote.noteData)), "confirm");
-
-					dad.holdTimer = 0;
-
-					if (SONG.needsVoices)
-						vocals.volume = 1;
-
-					daNote.kill();
-					notes.remove(daNote, true);
-					daNote.destroy();
-				}
+				// Make the Opponent sing the notes
+				if (!daNote.mustPress && daNote.noteOnTime)
+					goodNoteHit(daNote);
 				
-				if (botplay) {
-					if (daNote.mustPress && (Options.get("downscroll") == false ? daNote.y <= playerStrums.y : daNote.y >= playerStrums.y)) {
-						if (playerStrums.strums[Math.round(Math.abs(daNote.noteData))].animation.name != "confirm")
-							playerStrums.playAnim(Math.round(Math.abs(daNote.noteData)), "confirm");
-
+				if (botplay && daNote.mustPress) {
+					if (daNote.noteOnTime && (Options.get("downscroll") == false ? daNote.y <= playerStrums.y : daNote.y >= playerStrums.y)) {
 						goodNoteHit(daNote);
 					}
 				}
@@ -897,7 +861,8 @@ class PlayState extends MusicBeatState
 		FlxG.sound.music.volume = 0;
 		vocals.volume = 0;
 
-		Highscore.saveScore(SONG.song, songScore, storyDifficulty);
+		if (!botplay)
+			Highscore.saveScore(SONG.song, songScore, storyDifficulty);
 
 		if (isStoryMode)
 		{
@@ -914,7 +879,8 @@ class PlayState extends MusicBeatState
 
 				FlxG.switchState(new StoryMenuState());
 
-				Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
+				if (!botplay)
+					Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
 
 				FlxG.save.flush();
 			}
@@ -949,12 +915,12 @@ class PlayState extends MusicBeatState
 		var score:Int = 300;
 		var daRating:String = "sick";
 
-		var safeZones:Array<Float> = [0.6, 0.45, 0.3]; // The starting value, and the next in line is the end value. So 1 - 0.74 is a Shit, but a 0.75 - 0.19 is a bad.
+		var safeZones:Array<Float> = [0.6, 0.45, 0.3]; // The starting value, and the next in line is the end value. So 1 - 0.6 is a Shit, but a 0.6 - 0.45 is a bad.
 		var ratings:Array<String> = ['shit', 'bad', 'good'];
 
 		var rating:FlxSprite = new FlxSprite();
 
-		var coolText:FlxText = new FlxText(boyfriend.x - 128, boyfriend.y + 32, 0, Std.string(combo), 32); // not sure why ninjamuffin didn't just do it like this
+		var coolText:FlxText = new FlxText(boyfriend.x - 150, boyfriend.y + 32, 0, Std.string(combo), 32); // not sure why ninjamuffin didn't just do it like this
 		// coolText.screenCenter();
 
 		for (i in 0...ratings.length) {
@@ -974,7 +940,7 @@ class PlayState extends MusicBeatState
 			case 'sick':
 				++sicks;
 
-				if (StyleHandler.curStyle.enableSplashes) {
+				if (styleHandler.curStyle.enableSplashes) {
 					var noteSplash:NoteSplash = splashes.recycle(NoteSplash);
 					noteSplash.splash(daNote, playerStrums.strums[daNote].x, playerStrums.strums[daNote].y);
 					splashes.add(noteSplash);
@@ -989,7 +955,7 @@ class PlayState extends MusicBeatState
 
 		songScore += score;
 
-		rating.loadGraphic(StyleHandler.getImage('${StyleHandler.curStyle.ratingsDirectoryPath}/$daRating'));
+		rating.loadGraphic(styleHandler.getImage('${styleHandler.curStyle.ratingsDirectoryPath}/$daRating'));
 		rating.screenCenter();
 		rating.x = coolText.x - 40;
 		rating.y = coolText.y - 60;
@@ -997,7 +963,7 @@ class PlayState extends MusicBeatState
 		rating.velocity.y -= FlxG.random.int(140, 175);
 		rating.velocity.x -= FlxG.random.int(0, 10);
 
-		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(StyleHandler.getImage('${StyleHandler.curStyle.uiDirectoryPath}/combo'));
+		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(styleHandler.getImage('${styleHandler.curStyle.uiDirectoryPath}/combo'));
 		comboSpr.screenCenter();
 		
 		comboSpr.x = coolText.x + 48;
@@ -1028,7 +994,7 @@ class PlayState extends MusicBeatState
 		for (i in seperatedScore)
 		{
 			var numScore:FlxSprite = new FlxSprite()/*.loadGraphic('assets/images/' + 'num' + Std.int(i) + '.png')*/;
-			numScore.loadGraphic(StyleHandler.getImage('${StyleHandler.curStyle.numDirectoryPath}/num${Std.string(i)}'));
+			numScore.loadGraphic(styleHandler.getImage('${styleHandler.curStyle.numDirectoryPath}/num${Std.string(i)}'));
 			numScore.screenCenter();
 			numScore.x = coolText.x + (43 * daLoop) - 90;
 			numScore.y = coolText.y + 80;
@@ -1326,33 +1292,56 @@ class PlayState extends MusicBeatState
 	function goodNoteHit(note:Note):Void
 	{
 		if (!note.wasGoodHit)
-		{
-			if (!note.isSustainNote)
-			{
-				health += 0.023;
-
-				popUpScore(note.noteData, note.strumTime);
-				combo += 1;
-			}
-			else
-				health += 0.004;
-
-			switch (note.noteData)
-			{
-				case 0:
-					boyfriend.playAnim('singLEFT', true);
-				case 1:
-					boyfriend.playAnim('singDOWN', true);
-				case 2:
-					boyfriend.playAnim('singUP', true);
-				case 3:
-					boyfriend.playAnim('singRIGHT', true);
-			}
-
-			playerStrums.playAnim(note.noteData, 'confirm');
-
+		{	
 			note.wasGoodHit = true;
 			vocals.volume = 1;
+
+			var altStr:String = "";
+			if (note.altAnimation)
+				altStr = '-alt';
+			
+			if (note.mustPress) {
+				if (!note.isSustainNote)
+				{
+					health += 0.023;
+		
+					popUpScore(note.noteData, note.strumTime);
+					combo += 1;
+				}
+				else
+					health += 0.004;
+
+				switch (note.noteData)
+				{
+					case 0:
+						boyfriend.playAnim('singLEFT' + altStr, true);
+					case 1:
+						boyfriend.playAnim('singDOWN' + altStr, true);
+					case 2:
+						boyfriend.playAnim('singUP' + altStr, true);
+					case 3:
+						boyfriend.playAnim('singRIGHT' + altStr, true);
+				}
+		
+				playerStrums.playAnim(note.noteData, 'confirm');
+			}
+			else {
+				switch (note.noteData)
+				{
+					case 0:
+						dad.playAnim('singLEFT' + altStr, true);
+					case 1:
+						dad.playAnim('singDOWN' + altStr, true);
+					case 2:
+						dad.playAnim('singUP' + altStr, true);
+					case 3:
+						dad.playAnim('singRIGHT' + altStr, true);
+				}
+
+				dad.holdTimer = 0;
+
+				opponentStrums.playAnim(note.noteData, 'confirm');
+			}
 
 			if (!note.isSustainNote)
 			{

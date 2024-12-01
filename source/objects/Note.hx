@@ -1,5 +1,7 @@
 package objects;
 
+import engine.Styles.StyleData;
+import engine.Styles.LocalStyle;
 import engine.Options;
 import engine.Conductor;
 import engine.Styles.StyleHandler;
@@ -38,7 +40,7 @@ class Note extends FlxSprite
 	public var xOffset:Float = 0;
 	public var yOffset:Float = 0;
 
-	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?daStyle:String)
+	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?styleHandler:LocalStyle)
 	{
 		super();
 
@@ -54,10 +56,15 @@ class Note extends FlxSprite
 
 		this.noteData = noteData;
 
-		frames = StyleHandler.giveMeNotes();
-		var style = StyleHandler.curStyle;
-		if (daStyle != null)
-			style = StyleHandler.styles.get(daStyle);
+		var style:StyleData = null;
+		if (styleHandler == null) {
+			frames = StyleHandler.giveMeNotes();
+			style = StyleHandler.getData();
+		}
+		else{
+			frames = styleHandler.giveMeNotes();
+			style = styleHandler.curStyle;
+		}
 
 		for (anim in style.noteAnimations){
 			if (anim != null) {
@@ -159,6 +166,8 @@ class Note extends FlxSprite
 		}
 	}
 
+	public var noteOnTime:Bool = false;
+
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -179,12 +188,10 @@ class Note extends FlxSprite
 		else
 		{
 			canBeHit = false;
-
-			if (strumTime <= Conductor.songPosition)
-			{
-				wasGoodHit = true;
-			}
 		}
+
+		if (strumTime <= Conductor.songPosition)
+			noteOnTime = true;
 
 		if (tooLate)
 		{

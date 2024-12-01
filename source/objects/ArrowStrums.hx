@@ -1,5 +1,7 @@
 package objects;
 
+import engine.Styles.StyleData;
+import engine.Styles.LocalStyle;
 import engine.Styles.StyleHandler;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
@@ -14,13 +16,19 @@ class ArrowStrums extends FlxTypedSpriteGroup<FlxSprite>
     private var pressedOffsets:Map<Int, Array<Float>> = new Map();
     private var confirmOffsets:Map<Int, Array<Float>> = new Map();
 
-    override public function new(x:Float, y:Float, ?daStyle:String)
+    override public function new(x:Float, y:Float, ?styleHandler:LocalStyle)
     {
         super(x, y, 4);
 
-        var style = StyleHandler.curStyle;
-        if (daStyle != null)
-            style = StyleHandler.styles.get(daStyle);
+		var style:StyleData = null;
+		if (styleHandler == null) {
+			frames = StyleHandler.giveMeNotes();
+			style = StyleHandler.getData();
+		}
+		else{
+			frames = styleHandler.giveMeNotes();
+			style = styleHandler.curStyle;
+		}
 
 		for (i in 0...4)
 		{

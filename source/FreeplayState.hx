@@ -1,5 +1,7 @@
 package;
 
+import flixel.group.FlxSpriteGroup;
+import engine.editors.ChartingState;
 import engine.HelpfulAPI;
 import engine.Song;
 import engine.Highscore;
@@ -16,6 +18,8 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import lime.utils.Assets;
 import objects.Alphabet;
+import engine.Paths;
+import flixel.math.FlxRandom;
 
 using StringTools;
 
@@ -91,8 +95,20 @@ class FreeplayState extends MusicBeatState
 		scoreText.setFormat("assets/fonts/vcr.ttf", 32, FlxColor.WHITE, RIGHT);
 		// scoreText.alignment = RIGHT;*/
 
+		var highscoreText:FlxText = new FlxText();
+		highscoreText.setFormat(null, 24, FlxColor.WHITE, LEFT);
+		highscoreText.text = "Highscore: ";
+
 		scoreCounter = new Counter(0, 16, 12, 0.25);
-		scoreCounter.screenCenter(X);
+
+		scoreCounter.x += highscoreText.width;
+		highscoreText.y = scoreCounter.y;
+		
+		var scoreShit:FlxSpriteGroup = new FlxSpriteGroup();
+		scoreShit.add(scoreCounter);
+		scoreShit.add(highscoreText);
+
+		scoreShit.screenCenter(X);
 
 		diffText = new FlxText(0, 0, 512, "", 24);
 		diffText.setFormat("assets/fonts/vcr.ttf", 32, FlxColor.WHITE, CENTER);
@@ -102,7 +118,11 @@ class FreeplayState extends MusicBeatState
 		add(diffText);
 
 		// add(scoreText);
-		add(scoreCounter);
+
+		/*add(highscoreText);
+		add(scoreCounter);*/
+
+		add(scoreShit);
 
 		backBG.makeGraphic(Math.floor(scoreCounter.width), Math.floor(scoreCounter.height + diffText.height + 32), FlxColor.BLACK);
 		backBG.screenCenter(X);
@@ -164,18 +184,13 @@ class FreeplayState extends MusicBeatState
 			trace(poop);*/
 
 			try {
-				/*PlayState.SONG = Song.loadFromJson(poop, songs[curSelected][0].toLowerCase());
-				PlayState.isStoryMode = false;
-				PlayState.storyDifficulty = curDifficulty;
-				FlxG.switchState(new PlayState());
-				if (FlxG.sound.music != null)
-					FlxG.sound.music.stop();*/
-
 				HelpfulAPI.playSong(songs[curSelected][0], HelpfulAPI.getDifficultyFromIndex(curDifficulty));
 			}
 			catch (e:Dynamic) {
 				trace('Error loading song: $e');
-				FlxG.switchState(new ChartingState());
+
+				var rand:Float = new FlxRandom().int(1, 3);
+				FlxG.sound.play(Paths.getSound("badnoise" + rand));
 			}
 		}
 	}
