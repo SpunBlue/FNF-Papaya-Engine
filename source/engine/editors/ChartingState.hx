@@ -556,7 +556,6 @@ class ChartingState extends MusicBeatState {
 
         FlxG.camera.scroll.y = (strumLine.y - (sectionBG.height / 2)) + 2;
 
-        // true is a placeholder
         if (!FlxG.mouse.overlaps(ui_box)) {
             if (FlxG.keys.justPressed.SPACE) {
                 if (FlxG.sound.music.playing) {
@@ -604,9 +603,6 @@ class ChartingState extends MusicBeatState {
 
                 FlxG.switchState(new PlayState());
             }
-        }
-        else {
-            // stuffs
         }
 
         super.update(elapsed);
