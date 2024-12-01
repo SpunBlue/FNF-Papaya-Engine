@@ -595,6 +595,11 @@ class ChartingState extends MusicBeatState {
             }
 
             if (FlxG.keys.justPressed.ENTER || FlxG.keys.justPressed.ESCAPE) {
+                if (vocals != null)
+                    vocals.stop();
+                if (FlxG.sound.music != null)
+                    FlxG.sound.music.stop();
+
                 PlayState.SONG = _song;
 
                 FlxG.switchState(new PlayState());
