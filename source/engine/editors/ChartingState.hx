@@ -228,7 +228,7 @@ class ChartingState extends MusicBeatState {
         });
         group.add(saveSong);
 
-        var reloadSong:FlxUIButton = new FlxUIButton(uip.x + 200, uip.y, "Reload Audio", ()->{ reloadSong(songNameInput.text); });
+        var reloadSong:FlxUIButton = new FlxUIButton(uip.x + 200, uip.y, "Reload Audio", ()->{ reloadSong(songNameInput.text); changeSection(0); });
         group.add(reloadSong);
 
         var playbackStepper:FlxUINumericStepper = new FlxUINumericStepper(uip.x, uip.y + 40, 0.05, 1, 0, 2, 2);
@@ -778,6 +778,8 @@ class ChartingState extends MusicBeatState {
     {
         if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
+        if (vocals != null)
+            vocals.stop();
 
 		FlxG.sound.playMusic(Paths.getSong(song.toLowerCase(), 'Inst'), 0.6, false);
 
