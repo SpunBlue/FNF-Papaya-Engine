@@ -297,9 +297,16 @@ class ChartingState extends MusicBeatState {
         }); 
         group.add(mustHitCheckbox);
 
-        lengthStepper = new FlxUINumericStepper(uip.x, uip.y + 50, 4, 16, 4, 16, 0);
+        lengthStepper = new FlxUINumericStepper(uip.x, uip.y + 50, 4, _song.notes[curSection].lengthInSteps, 4, 16, 0);
         updatesOnSectionChange.push(()->{
             lengthStepper.value = _song.notes[curSection].lengthInSteps;
+        });
+        updatesEveryFrame.push(()->{
+            var section = _song.notes[curSection];
+            if (section != null && section.lengthInSteps != Math.floor(lengthStepper.value)) {
+                section.lengthInSteps = Math.floor(lengthStepper.value);
+                updateSection();
+            }
         });
         group.add(lengthStepper);
 
@@ -603,12 +610,6 @@ class ChartingState extends MusicBeatState {
                 PlayState.SONG = _song;
 
                 FlxG.switchState(new PlayState());
-            }
-        }
-        else {
-            if (FlxG.mouse.justPressed) {
-                if (FlxG.mouse.overlaps(lengthStepper, uiCam))
-                    _song.notes[curSection].lengthInSteps = Math.floor(lengthStepper.value);
             }
         }
 
