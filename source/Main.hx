@@ -1,12 +1,5 @@
 package;
 
-import openfl.events.Event;
-import flixel.util.FlxSave;
-import flixel.FlxG;
-import sys.FileSystem;
-import sys.io.File;
-import haxe.io.Path;
-import lime.system.System;
 import lime.app.Application;
 import flixel.FlxGame;
 import openfl.display.FPS;

@@ -393,6 +393,9 @@ class ChartingState extends MusicBeatState {
         });
         group.add(speedStepper);
 
+        var songSpeedText:FlxText = new FlxText(speedStepper.x + 60, speedStepper.y, 100, "Speed");
+        group.add(songSpeedText);
+
         var bpmText:FlxText = new FlxText(bpmStepper.x + 60, bpmStepper.y, 0, "BPM");
         group.add(bpmText);
 
