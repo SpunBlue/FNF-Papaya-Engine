@@ -378,6 +378,14 @@ class ChartingState extends MusicBeatState {
         });
         group.add(bpmStepper);
 
+        var speedStepper = new FlxUINumericStepper(uip.x, uip.y + 40, 0.05, 1, 0.1, 10, 2);
+        speedStepper.value = _song.speed;
+        updatesEveryFrame.push(()->{
+            if (_song.speed != speedStepper.value)
+                _song.speed = speedStepper.value;
+        });
+        group.add(speedStepper);
+
         var bpmText:FlxText = new FlxText(bpmStepper.x + 60, bpmStepper.y, 0, "BPM");
         group.add(bpmText);
 
@@ -694,13 +702,15 @@ class ChartingState extends MusicBeatState {
     }    
 
     function createSection(section:Int) {
-        for (sec in 0...section) {
-            if (_song.notes[sec] == null) {
-                var mustHit:Bool = true;
-                if (_song.notes[curSection] != null)
-                    mustHit = !_song.notes[curSection].mustHitSection;
+        var i:Int = 0;
+        while (_song.notes[section] == null) {
+            var mustHit:Bool = true;
 
-                _song.notes[sec] = {
+            if (i > 0 && _song.notes[i - 1] != null)
+                mustHit = !_song.notes[i - 1].mustHitSection;
+
+            if (_song.notes[i] == null) {
+                _song.notes[i] = {
                     sectionNotes: [],
                     bpm: _song.bpm,
                     lengthInSteps: 16,
@@ -708,9 +718,9 @@ class ChartingState extends MusicBeatState {
                     mustHitSection: mustHit,
                     typeOfSection: 0
                 }
+            };
 
-                trace('Creating New Section...');
-            }
+            ++i;
         }
     }
 
