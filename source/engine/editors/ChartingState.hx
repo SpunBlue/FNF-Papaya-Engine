@@ -222,9 +222,8 @@ class ChartingState extends MusicBeatState {
                 "song": _song
             };
 
-            var data = Json.stringify(json);
-
-            fileDialog.save(Json.stringify(data, "\t"), null, '${_song.song}-${PlayState.storyDifficulty}.json');
+            var data = Json.stringify(json, "\t");
+            fileDialog.save(data, null, '${_song.song}-${PlayState.storyDifficulty}.json');
         });
         group.add(saveSong);
 
@@ -280,6 +279,8 @@ class ChartingState extends MusicBeatState {
         ui_box.addGroup(group);
     }
 
+    var lengthStepper:FlxUINumericStepper;
+
     var copiedSection:SwagSection;
     function createSectionUI()
     {
@@ -296,17 +297,9 @@ class ChartingState extends MusicBeatState {
         }); 
         group.add(mustHitCheckbox);
 
-        var lengthStepper = new FlxUINumericStepper(uip.x, uip.y + 50, 4, 16, 4, 16, 0);
+        lengthStepper = new FlxUINumericStepper(uip.x, uip.y + 50, 4, 16, 4, 16, 0);
         updatesOnSectionChange.push(()->{
             lengthStepper.value = _song.notes[curSection].lengthInSteps;
-        });
-        updatesEveryFrame.push(()->{
-            if (_song.notes[curSection].lengthInSteps != lengthStepper.value) {
-                trace('Changing Length in Steps...');
-
-                _song.notes[curSection].lengthInSteps = Math.floor(lengthStepper.value);
-                updateSection();
-            }
         });
         group.add(lengthStepper);
 
@@ -556,7 +549,7 @@ class ChartingState extends MusicBeatState {
 
         FlxG.camera.scroll.y = (strumLine.y - (sectionBG.height / 2)) + 2;
 
-        if (!FlxG.mouse.overlaps(ui_box)) {
+        if (!FlxG.mouse.overlaps(ui_box, uiCam)) {
             if (FlxG.keys.justPressed.SPACE) {
                 if (FlxG.sound.music.playing) {
                     FlxG.sound.music.pause();
@@ -602,6 +595,12 @@ class ChartingState extends MusicBeatState {
                 PlayState.SONG = _song;
 
                 FlxG.switchState(new PlayState());
+            }
+        }
+        else {
+            if (FlxG.mouse.justPressed) {
+                if (FlxG.mouse.overlaps(lengthStepper, uiCam))
+                    _song.notes[curSection].lengthInSteps = Math.floor(lengthStepper.value);
             }
         }
 
