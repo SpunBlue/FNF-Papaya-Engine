@@ -222,9 +222,8 @@ class ChartingState extends MusicBeatState {
                 "song": _song
             };
 
-            var data = Json.stringify(json);
-
-            fileDialog.save(Json.stringify(data, "\t"), null, '${_song.song}-${PlayState.storyDifficulty}.json');
+            var data = Json.stringify(json, "\t");
+            fileDialog.save(data, null, '${_song.song}-${PlayState.storyDifficulty}.json');
         });
         group.add(saveSong);
 
@@ -280,6 +279,8 @@ class ChartingState extends MusicBeatState {
         ui_box.addGroup(group);
     }
 
+    var lengthStepper:FlxUINumericStepper;
+
     var copiedSection:SwagSection;
     function createSectionUI()
     {
@@ -296,15 +297,14 @@ class ChartingState extends MusicBeatState {
         }); 
         group.add(mustHitCheckbox);
 
-        var lengthStepper = new FlxUINumericStepper(uip.x, uip.y + 50, 4, 16, 4, 16, 0);
+        lengthStepper = new FlxUINumericStepper(uip.x, uip.y + 50, 4, _song.notes[curSection].lengthInSteps, 4, 16, 0);
         updatesOnSectionChange.push(()->{
             lengthStepper.value = _song.notes[curSection].lengthInSteps;
         });
         updatesEveryFrame.push(()->{
-            if (_song.notes[curSection].lengthInSteps != lengthStepper.value) {
-                trace('Changing Length in Steps...');
-
-                _song.notes[curSection].lengthInSteps = Math.floor(lengthStepper.value);
+            var section = _song.notes[curSection];
+            if (section != null && section.lengthInSteps != Math.floor(lengthStepper.value)) {
+                section.lengthInSteps = Math.floor(lengthStepper.value);
                 updateSection();
             }
         });
@@ -384,6 +384,17 @@ class ChartingState extends MusicBeatState {
             }
         });
         group.add(bpmStepper);
+
+        var speedStepper = new FlxUINumericStepper(uip.x, uip.y + 40, 0.05, 1, 0.1, 10, 2);
+        speedStepper.value = _song.speed;
+        updatesEveryFrame.push(()->{
+            if (_song.speed != speedStepper.value)
+                _song.speed = speedStepper.value;
+        });
+        group.add(speedStepper);
+
+        var songSpeedText:FlxText = new FlxText(speedStepper.x + 60, speedStepper.y, 100, "Speed");
+        group.add(songSpeedText);
 
         var bpmText:FlxText = new FlxText(bpmStepper.x + 60, bpmStepper.y, 0, "BPM");
         group.add(bpmText);
@@ -556,8 +567,7 @@ class ChartingState extends MusicBeatState {
 
         FlxG.camera.scroll.y = (strumLine.y - (sectionBG.height / 2)) + 2;
 
-        // true is a placeholder
-        if (!FlxG.mouse.overlaps(ui_box)) {
+        if (!FlxG.mouse.overlaps(ui_box, uiCam)) {
             if (FlxG.keys.justPressed.SPACE) {
                 if (FlxG.sound.music.playing) {
                     FlxG.sound.music.pause();
@@ -604,9 +614,6 @@ class ChartingState extends MusicBeatState {
 
                 FlxG.switchState(new PlayState());
             }
-        }
-        else {
-            // stuffs
         }
 
         super.update(elapsed);
@@ -699,13 +706,15 @@ class ChartingState extends MusicBeatState {
     }    
 
     function createSection(section:Int) {
-        for (sec in 0...section) {
-            if (_song.notes[sec] == null) {
-                var mustHit:Bool = true;
-                if (_song.notes[curSection] != null)
-                    mustHit = !_song.notes[curSection].mustHitSection;
+        var i:Int = 0;
+        while (_song.notes[section] == null) {
+            var mustHit:Bool = true;
 
-                _song.notes[sec] = {
+            if (i > 0 && _song.notes[i - 1] != null)
+                mustHit = !_song.notes[i - 1].mustHitSection;
+
+            if (_song.notes[i] == null) {
+                _song.notes[i] = {
                     sectionNotes: [],
                     bpm: _song.bpm,
                     lengthInSteps: 16,
@@ -713,9 +722,9 @@ class ChartingState extends MusicBeatState {
                     mustHitSection: mustHit,
                     typeOfSection: 0
                 }
+            };
 
-                trace('Creating New Section...');
-            }
+            ++i;
         }
     }
 
