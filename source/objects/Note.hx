@@ -40,7 +40,7 @@ class Note extends FlxSprite
 	public var xOffset:Float = 0;
 	public var yOffset:Float = 0;
 
-	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?styleHandler:LocalStyle)
+	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, styleHandler:LocalStyle)
 	{
 		super();
 
@@ -57,14 +57,8 @@ class Note extends FlxSprite
 		this.noteData = noteData;
 
 		var style:StyleData = null;
-		if (styleHandler == null) {
-			frames = StyleHandler.giveMeNotes();
-			style = StyleHandler.getData();
-		}
-		else{
-			frames = styleHandler.giveMeNotes();
-			style = styleHandler.curStyle;
-		}
+		frames = styleHandler.giveMeNotes();
+		style = styleHandler.curStyle;
 
 		for (anim in style.noteAnimations){
 			if (anim != null) {
@@ -160,7 +154,7 @@ class Note extends FlxSprite
 						prevNote.animation.play('redhold');
 				}
 
-				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed;
+				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.curSong.speed;
 				prevNote.updateHitbox();
 			}
 		}
@@ -190,8 +184,9 @@ class Note extends FlxSprite
 			canBeHit = false;
 		}
 
-		if (strumTime <= Conductor.songPosition)
+		if (!noteOnTime && strumTime <= Conductor.songPosition) {
 			noteOnTime = true;
+		}
 
 		if (tooLate)
 		{

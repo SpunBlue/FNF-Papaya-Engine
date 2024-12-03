@@ -47,7 +47,7 @@ class ButtonRemapSubstate extends MusicBeatSubstate
 		magenta.alpha = 0.7;
 		add(magenta);*/
 
-		notes = new ArrowStrums(Note.swagWidth / 1.2, (realCam.height / 2) - Note.swagWidth / 2);
+		notes = new ArrowStrums(Note.swagWidth / 1.2, (realCam.height / 2) - Note.swagWidth / 2, StyleHandler.handler);
 		add(notes);
 
 		for (i in 0...4) {

@@ -35,6 +35,8 @@ import flixel.addons.ui.FlxUIButton;
 import flixel.addons.ui.FlxUIGroup;
 import flixel.addons.ui.FlxUITabMenu;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
+import engine.Styles.StyleHandler;
+import engine.Styles.LocalStyle;
 
 class ChartingState extends MusicBeatState {
     private var GRID_SIZE:Int = 40;
@@ -610,7 +612,7 @@ class ChartingState extends MusicBeatState {
                 if (FlxG.sound.music != null)
                     FlxG.sound.music.stop();
 
-                PlayState.SONG = _song;
+                PlayState.curSong = _song;
 
                 FlxG.switchState(new PlayState());
             }
@@ -762,7 +764,7 @@ class ChartingState extends MusicBeatState {
 			var daStrumTime = note.strumTime;
 			var daSus = note.sustainLength;
 
-            var note:Note = new Note(daStrumTime, daNoteInfo % 4);
+            var note:Note = new Note(daStrumTime, daNoteInfo % 4, StyleHandler.handler);
 			note.sustainLength = daSus;
 			note.setGraphicSize(GRID_SIZE, GRID_SIZE);
 			note.updateHitbox();

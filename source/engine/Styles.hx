@@ -11,7 +11,10 @@ import openfl.Assets;
 class StyleHandler
 {
     // public static var curStyle:StyleData;
-    private static var handler:LocalStyle;
+    /**
+     * Handles the default style.
+     */
+    public static var handler:LocalStyle;
 
     public static var styles:Map<String, StyleData> = new Map();
     public static var styleList:Array<String> = [

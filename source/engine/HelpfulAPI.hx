@@ -47,7 +47,7 @@ class HelpfulAPI {
     }
 
     public static function playSong(name:String, difficulty:String) {
-        PlayState.SONG = retrieveSong(name, difficulty);
+        PlayState.curSong = retrieveSong(name, difficulty);
 
         PlayState.storyWeek = -1;
         PlayState.isStoryMode = false;
@@ -58,7 +58,7 @@ class HelpfulAPI {
     }
 
     public static function playSongs(names:Array<String>, difficulty:String, ?week:Int = -1) {
-        PlayState.SONG = retrieveSong(names[0], difficulty);
+        PlayState.curSong = retrieveSong(names[0], difficulty);
         PlayState.isStoryMode = true;
         PlayState.storyWeek = week;
         PlayState.campaignScore = 0;

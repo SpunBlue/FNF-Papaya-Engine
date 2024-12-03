@@ -16,20 +16,12 @@ class ArrowStrums extends FlxTypedSpriteGroup<FlxSprite>
     private var pressedOffsets:Map<Int, Array<Float>> = new Map();
     private var confirmOffsets:Map<Int, Array<Float>> = new Map();
 
-    override public function new(x:Float, y:Float, ?styleHandler:LocalStyle)
+    override public function new(x:Float, y:Float, styleHandler:LocalStyle)
     {
         super(x, y, 4);
 
 		var style:StyleData = null;
-		if (styleHandler == null) {
-            @:privateAccess
-			styleHandler = StyleHandler.handler;
-			style = StyleHandler.getData();
-		}
-		else{
-			frames = styleHandler.giveMeNotes();
-			style = styleHandler.curStyle;
-		}
+        style = styleHandler.curStyle;
 
 		for (i in 0...4)
 		{
