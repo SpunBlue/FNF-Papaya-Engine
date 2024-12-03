@@ -8,14 +8,17 @@ import flixel.FlxSprite;
 
 class NoteSplash extends FlxSprite {
     var properties:SplashProperties = null;
+    public var style:StyleData;
 
     override public function new(?x:Float = 0, ?y:Float = 0, ?styleHandler:LocalStyle)
     {
         super(x, y);
 
-        var style:StyleData = null;
-		if (styleHandler == null)
+		if (styleHandler == null){
+            @:privateAccess
+            styleHandler = StyleHandler.handler;
             style = StyleHandler.getData();
+        }
         else 
             style = styleHandler.curStyle;
 

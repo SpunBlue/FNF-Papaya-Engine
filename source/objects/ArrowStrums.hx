@@ -22,7 +22,8 @@ class ArrowStrums extends FlxTypedSpriteGroup<FlxSprite>
 
 		var style:StyleData = null;
 		if (styleHandler == null) {
-			frames = StyleHandler.giveMeNotes();
+            @:privateAccess
+			styleHandler = StyleHandler.handler;
 			style = StyleHandler.getData();
 		}
 		else{
@@ -34,7 +35,7 @@ class ArrowStrums extends FlxTypedSpriteGroup<FlxSprite>
 		{
 			var babyArrow:FlxSprite = new FlxSprite();
 
-			babyArrow.frames = StyleHandler.giveMeStrums();
+			babyArrow.frames = styleHandler.giveMeStrums();
 
 			babyArrow.antialiasing = style.antialiasing;
 			babyArrow.setGraphicSize(Std.int(babyArrow.width * 0.7));

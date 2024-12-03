@@ -56,7 +56,7 @@ class HealthIcon extends FlxSprite
 		if (Assets.exists(Paths.getImage('icons/$character')))
 			loadGraphic(Paths.getImage('icons/$character'), true, 150, 150);
 		else
-			loadGraphic(Paths.getImage('icons/default'));
+			loadGraphic(Paths.getImage('icons/default'), true, 150, 150);
 
 		antialiasing = true;
 		animation.add('$character', [0, 1], 0, false, isPlayer);

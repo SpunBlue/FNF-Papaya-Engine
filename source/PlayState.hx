@@ -437,7 +437,7 @@ class PlayState extends MusicBeatState
 				else
 					oldNote = null;
 
-				var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote);
+				var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote, styleHandler);
 				swagNote.sustainLength = songNote.sustainLength;
 				swagNote.altAnimation = songNote.altAnimation;
 				swagNote.camera = camHUD;
@@ -450,7 +450,7 @@ class PlayState extends MusicBeatState
 				{
 					oldNote = unspawnNotes[Std.int(unspawnNotes.length - 1)];
 
-					var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet, daNoteData, oldNote, true);
+					var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet, daNoteData, oldNote, true, styleHandler);
 					sustainNote.camera = camHUD;
 					unspawnNotes.push(sustainNote);
 
@@ -488,11 +488,11 @@ class PlayState extends MusicBeatState
 		
 		switch (player) {
 			case 0: // CPU
-				opponentStrums = new ArrowStrums(128, y);
+				opponentStrums = new ArrowStrums(128, y, styleHandler);
 				if (!isStoryMode)
 					opponentStrums.animateArrows();
 			case 1:
-				playerStrums = new ArrowStrums((FlxG.width - 128) - (Note.swagWidth * 4), y);
+				playerStrums = new ArrowStrums((FlxG.width - 128) - (Note.swagWidth * 4), y, styleHandler);
 				if (!isStoryMode)
 					playerStrums.animateArrows();
 		}
@@ -904,6 +904,11 @@ class PlayState extends MusicBeatState
 
 				if (styleHandler.curStyle.enableSplashes) {
 					var noteSplash:NoteSplash = splashes.recycle(NoteSplash);
+					if (noteSplash.style != styleHandler.curStyle) {
+						noteSplash.destroy();
+						noteSplash = new NoteSplash(0, 0, styleHandler);
+					}
+
 					noteSplash.splash(daNote, playerStrums.strums[daNote].x, playerStrums.strums[daNote].y);
 					splashes.add(noteSplash);
 				}
