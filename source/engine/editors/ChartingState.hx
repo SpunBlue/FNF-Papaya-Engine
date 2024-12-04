@@ -1,5 +1,6 @@
 package engine.editors;
 
+import openfl.Assets;
 #if debug
 import lime.media.AudioBuffer;
 import lime.utils.Bytes;
@@ -186,6 +187,8 @@ class ChartingState extends MusicBeatState {
         FlxG.camera.scroll.x += sectionBG.width / 2;
 
         FlxG.mouse.visible = true;
+
+        FlxG.sound.music.time = sectionStartTime(curSection) + 20;
     }
 
     /**
@@ -245,7 +248,8 @@ class ChartingState extends MusicBeatState {
         help.x = (ui_box.width / 2) - (help.width / 2);
         help.text = "W, and S, to move the strum line.\n"
             + "A, and D, to cycle through the sections.\n"
-            + "Space to play the song.";
+            + "Space to play the song.\n"
+            + "Voices must be mixed down into one track and be named 'Mixed-Voices'.";
         help.setFormat(null, 10, FlxColor.WHITE);
         group.add(help);
 
@@ -799,7 +803,10 @@ class ChartingState extends MusicBeatState {
 
 		FlxG.sound.playMusic(Paths.getSong(song.toLowerCase(), 'Inst'), 0.6, false);
 
-		vocals = new FlxSound().loadEmbedded(Paths.getSong(song.toLowerCase(), 'Voices'));
+        if (Assets.exists(Paths.getSong(song.toLowerCase(), 'Mixed-Voices')))
+		    vocals = new FlxSound().loadEmbedded(Paths.getSong(song.toLowerCase(), 'Mixed-Voices'));
+        else
+            vocals = new FlxSound().loadEmbedded(Paths.getSong(song.toLowerCase(), 'Player-Voices'));
 
 		FlxG.sound.music.pause();
 		vocals.pause();

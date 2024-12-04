@@ -52,6 +52,7 @@ class HelpfulAPI {
         PlayState.storyWeek = -1;
         PlayState.isStoryMode = false;
         PlayState.storyDifficulty = difficulty.toLowerCase();
+        PlayState.chartingMode = false;
 
         FlxG.sound.music.stop();
         FlxG.switchState(new PlayState());
@@ -64,6 +65,7 @@ class HelpfulAPI {
         PlayState.campaignScore = 0;
         PlayState.storyDifficulty = difficulty.toLowerCase();
         PlayState.storyPlaylist = names;
+        PlayState.chartingMode = false;
         
         FlxG.sound.music.stop();
         FlxG.switchState(new PlayState());
