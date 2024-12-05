@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxG;
 import lime.app.Application;
 import flixel.FlxGame;
 import openfl.display.FPS;
@@ -27,6 +28,9 @@ class Main extends Sprite
 		super();
 
 		addChild(new FlxGame(0, 0, TitleState));
+		
+		FlxG.autoPause = false;
+
 		engine.Options.init();
 		engine.Styles.StyleHandler.init();
 

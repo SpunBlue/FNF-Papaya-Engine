@@ -1,5 +1,6 @@
 package objects;
 
+import flixel.tweens.FlxTween;
 import engine.Styles.StyleData;
 import engine.Styles.LocalStyle;
 import engine.Options;
@@ -40,7 +41,7 @@ class Note extends FlxSprite
 	public var xOffset:Float = 0;
 	public var yOffset:Float = 0;
 
-	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?styleHandler:LocalStyle)
+	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, styleHandler:LocalStyle)
 	{
 		super();
 
@@ -57,14 +58,8 @@ class Note extends FlxSprite
 		this.noteData = noteData;
 
 		var style:StyleData = null;
-		if (styleHandler == null) {
-			frames = StyleHandler.giveMeNotes();
-			style = StyleHandler.getData();
-		}
-		else{
-			frames = styleHandler.giveMeNotes();
-			style = styleHandler.curStyle;
-		}
+		frames = styleHandler.giveMeNotes();
+		style = styleHandler.curStyle;
 
 		for (anim in style.noteAnimations){
 			if (anim != null) {
@@ -120,15 +115,9 @@ class Note extends FlxSprite
 
 		if (isSustainNote && prevNote != null)
 		{
-			if (Options.get("downscroll") == true) {
-				flipY = !flipY;
-				yOffset += swagWidth / 2;
-			}
-
 			noteScore * 0.2;
 			alpha = 0.6;
 
-			xOffset += width / 2;
 			switch (noteData)
 			{
 				case 2:
@@ -142,9 +131,6 @@ class Note extends FlxSprite
 			}
 
 			updateHitbox();
-			xOffset -= width / 2;
-
-			yOffset -= 10;
 			
 			if (prevNote.isSustainNote)
 			{
@@ -160,8 +146,13 @@ class Note extends FlxSprite
 						prevNote.animation.play('redhold');
 				}
 
-				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed;
+				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.curSong.speed;
 				prevNote.updateHitbox();
+			}
+
+			xOffset = (swagWidth / 2) - (width / 2);
+			if (Options.get("downscroll") == true) {
+				flipY = !flipY;
 			}
 		}
 	}
@@ -172,26 +163,20 @@ class Note extends FlxSprite
 	{
 		super.update(elapsed);
 
-		if (mustPress)
+		if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset
+			&& strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * 0.75)) // funni
 		{
-			if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset
-				&& strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * 0.75)) // funni
-			{
-				canBeHit = true;
-			}
-			else
-				canBeHit = false;
-
-			if (strumTime < Conductor.songPosition - Conductor.safeZoneOffset)
-				tooLate = true;
+			canBeHit = true;
 		}
 		else
-		{
 			canBeHit = false;
-		}
 
-		if (strumTime <= Conductor.songPosition)
+		if (strumTime < Conductor.songPosition - Conductor.safeZoneOffset)
+			tooLate = true;
+
+		if (!noteOnTime && strumTime <= Conductor.songPosition) {
 			noteOnTime = true;
+		}
 
 		if (tooLate)
 		{

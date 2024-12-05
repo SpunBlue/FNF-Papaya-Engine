@@ -23,6 +23,7 @@ typedef SwagSong =
 	var girlfriend:String;
 
 	var visualStyle:String;
+	var ?curStage:String;
 }
 
 class Song

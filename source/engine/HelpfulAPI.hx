@@ -47,23 +47,25 @@ class HelpfulAPI {
     }
 
     public static function playSong(name:String, difficulty:String) {
-        PlayState.SONG = retrieveSong(name, difficulty);
+        PlayState.curSong = retrieveSong(name, difficulty);
 
         PlayState.storyWeek = -1;
         PlayState.isStoryMode = false;
         PlayState.storyDifficulty = difficulty.toLowerCase();
+        PlayState.chartingMode = false;
 
         FlxG.sound.music.stop();
         FlxG.switchState(new PlayState());
     }
 
     public static function playSongs(names:Array<String>, difficulty:String, ?week:Int = -1) {
-        PlayState.SONG = retrieveSong(names[0], difficulty);
+        PlayState.curSong = retrieveSong(names[0], difficulty);
         PlayState.isStoryMode = true;
         PlayState.storyWeek = week;
         PlayState.campaignScore = 0;
         PlayState.storyDifficulty = difficulty.toLowerCase();
         PlayState.storyPlaylist = names;
+        PlayState.chartingMode = false;
         
         FlxG.sound.music.stop();
         FlxG.switchState(new PlayState());

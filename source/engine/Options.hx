@@ -13,7 +13,7 @@ class Options
     public static final defaultOptions:Array<OptionsData> = [
         {
             name: "maxFPS",
-            toggle: true
+            toggle: false
         },
         {
             name: "allowDistractions",

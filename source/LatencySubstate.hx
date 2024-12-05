@@ -1,5 +1,6 @@
 package;
 
+import engine.Styles.StyleHandler;
 import engine.Paths;
 import engine.Conductor;
 import flixel.math.FlxRandom;
@@ -35,7 +36,7 @@ class LatencySubstate extends MusicBeatSubstate
 
 		this.camera = funnyCam;
 
-		strumLine = new ArrowStrums(0, 50);
+		strumLine = new ArrowStrums(0, 5, StyleHandler.handler);
 
 		super();
 
@@ -63,7 +64,7 @@ class LatencySubstate extends MusicBeatSubstate
 
 		if (noteGrp.members.length == 0) {
 			for (i in 0...32) {
-				var note:Note = new Note(Conductor.crochet * i, FlxG.random.int(0, 3));
+				var note:Note = new Note(Conductor.crochet * i, FlxG.random.int(0, 3), StyleHandler.handler);
 				note.mustPress = true;
 				note.visible = true;
 				note.alpha = 0;
@@ -159,7 +160,7 @@ class LatencySubstate extends MusicBeatSubstate
 
 	function noteCalc(daNote:Note):Float
 	{
-		return (strumLine.y - (Conductor.songPosition - daNote.strumTime) * (0.45)) + daNote.yOffset;
+		return (strumLine.y - (Conductor.songPosition - daNote.strumTime) * (0.45));
 	}
 
 	override function close()

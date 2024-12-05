@@ -28,7 +28,7 @@ class Paths
      * Get Song
      * @param songName Name of Song
      * @param file Inst/Voices or some other third thing
-     * @return String Path to Song `assets/songs/test/inst.ogg`;
+     * @return String Path to Song `assets/songs/test/Inst.ogg`;
      */
     public static function getSong(songName:String, file:String):String
     {
@@ -38,7 +38,7 @@ class Paths
     /**
      * Get Sound
      * @param soundName Name of Sound
-     * @return String Path to Sound `assets/sounds/test/inst.ogg`;
+     * @return String Path to Sound `assets/sounds/test/test.ogg`;
      */
      public static function getSound(soundName:String):String
     {

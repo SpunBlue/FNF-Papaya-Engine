@@ -1,5 +1,6 @@
 package engine.editors;
 
+import openfl.Assets;
 #if debug
 import lime.media.AudioBuffer;
 import lime.utils.Bytes;
@@ -35,6 +36,8 @@ import flixel.addons.ui.FlxUIButton;
 import flixel.addons.ui.FlxUIGroup;
 import flixel.addons.ui.FlxUITabMenu;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
+import engine.Styles.StyleHandler;
+import engine.Styles.LocalStyle;
 
 class ChartingState extends MusicBeatState {
     private var GRID_SIZE:Int = 40;
@@ -184,6 +187,8 @@ class ChartingState extends MusicBeatState {
         FlxG.camera.scroll.x += sectionBG.width / 2;
 
         FlxG.mouse.visible = true;
+
+        FlxG.sound.music.time = sectionStartTime(curSection) + 20;
     }
 
     /**
@@ -243,7 +248,8 @@ class ChartingState extends MusicBeatState {
         help.x = (ui_box.width / 2) - (help.width / 2);
         help.text = "W, and S, to move the strum line.\n"
             + "A, and D, to cycle through the sections.\n"
-            + "Space to play the song.";
+            + "Space to play the song.\n"
+            + "Voices must be mixed down into one track and be named 'Mixed-Voices'.";
         help.setFormat(null, 10, FlxColor.WHITE);
         group.add(help);
 
@@ -349,12 +355,28 @@ class ChartingState extends MusicBeatState {
         });
         group.add(copyLastSection);
 
+        var swapSection:FlxUIButton = new FlxUIButton(stepperCopy.x, stepperCopy.y + 40, "Swap Section", ()->{
+            var section:SwagSection = _song.notes[curSection];
+
+            for (note in section.sectionNotes) {
+                if (note.noteData > 3)
+                    note.noteData -= 4;
+                else
+                    note.noteData += 4;
+            }
+
+            _song.notes[curSection] = section;
+            updateSection();
+        });
+        group.add(swapSection);
+
         var clearSection:FlxUIButton = new FlxUIButton(uip.x, ui_box.height - 60, "CLEAR", ()->{
             _song.notes[curSection].sectionNotes = [];
             updateSection();
         });
         clearSection.color = FlxColor.RED;
         group.add(clearSection);
+
 
         ui_box.addGroup(group);
     }
@@ -401,6 +423,7 @@ class ChartingState extends MusicBeatState {
 
         var characters:Array<String> = CoolUtil.coolTextFile('assets/data/characterList.txt');
 		var styles:Array<String> = CoolUtil.coolTextFile(Paths.getTxt('visualStyleList'));
+        var stages:Array<String> = CoolUtil.coolTextFile(Paths.getTxt('stageList'));
 
 		var addLater:Array<FlxUIDropDownMenu> = [];
 
@@ -429,6 +452,9 @@ class ChartingState extends MusicBeatState {
 
 		createDrop(150, 140, styles, function(dropdown:FlxUIDropDownMenu) { dropdown.selectedLabel = _song.visualStyle; },
 			function (string:String) { _song.visualStyle = styles[Std.parseInt(string)]; }, "Visual Style");
+
+        createDrop(20, 180, stages, function(dropdown:FlxUIDropDownMenu) { dropdown.selectedLabel = _song.curStage; },
+			function (string:String) { _song.curStage = stages[Std.parseInt(string)]; }, "Selected Stage");
 
         addLater.sort(function(a, b):Int {
 			if (a.y > b.y) {
@@ -503,8 +529,41 @@ class ChartingState extends MusicBeatState {
 
             // add/remove note
             if (FlxG.mouse.justPressed) {
+                var noNote:Bool = true;
 
-                if (!daCursor.overlaps(renderedNotes)){
+                for (note in renderedNotes) {
+                    var daNote:Note = null;
+                    if (note is Note)
+                        daNote = cast (note, Note);
+                    else
+                        continue;
+
+                    if (FlxG.mouse.overlaps(daNote)) {
+                        for (i in _song.notes[curSection].sectionNotes) {
+                            var check:Bool = true;
+                            if (i.noteData >= 4 && !daNote.mustPress)
+                                check = true;
+                            else if (i.noteData < 4 && daNote.mustPress)
+                                check = true;
+                            else
+                                check = false;
+
+                            if (i.strumTime == daNote.strumTime && (i.noteData % 4) == daNote.noteData && check) {
+                                _song.notes[curSection].sectionNotes.remove(i);
+
+                                trace('Removed Note!');
+
+                                noNote = false;
+                                updateSection();
+
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Add note if there was none
+                if (noNote) {
                     trace('Adding Note!');
 
                     stepperSusLength.value = 0;
@@ -522,37 +581,6 @@ class ChartingState extends MusicBeatState {
     
                     _song.notes[curSection].sectionNotes.push(_note);
                     updateSection();
-                }
-                else {
-                    for (note in renderedNotes) {
-                        var daNote:Note = null;
-                        if (note is Note)
-                            daNote = cast (note, Note);
-                        else
-                            continue;
-
-                        if (FlxG.mouse.overlaps(daNote)) {
-                            for (i in _song.notes[curSection].sectionNotes) {
-                                var check:Bool = true;
-                                if (i.noteData >= 4 && !daNote.mustPress)
-                                    check = true;
-                                else if (i.noteData < 4 && daNote.mustPress)
-                                    check = true;
-                                else
-                                    check = false;
-
-                                if (i.strumTime == daNote.strumTime && (i.noteData % 4) == daNote.noteData && check) {
-                                    _song.notes[curSection].sectionNotes.remove(i);
-
-                                    trace('Removing Note!');
-                                    updateSection();
-                                    break;
-                                }
-                            }
-
-                            break;
-                        }
-                    }
                 }
             }
         }
@@ -610,7 +638,7 @@ class ChartingState extends MusicBeatState {
                 if (FlxG.sound.music != null)
                     FlxG.sound.music.stop();
 
-                PlayState.SONG = _song;
+                PlayState.curSong = _song;
 
                 FlxG.switchState(new PlayState());
             }
@@ -649,6 +677,8 @@ class ChartingState extends MusicBeatState {
             prevSectionBG.visible = true;
         }
     }
+
+    final yoMama:String = "so fat";
 
     function changeSection(section:Int) {
         trace('Changing Section ($curSection -> $section)...');
@@ -762,7 +792,7 @@ class ChartingState extends MusicBeatState {
 			var daStrumTime = note.strumTime;
 			var daSus = note.sustainLength;
 
-            var note:Note = new Note(daStrumTime, daNoteInfo % 4);
+            var note:Note = new Note(daStrumTime, daNoteInfo % 4, StyleHandler.handler);
 			note.sustainLength = daSus;
 			note.setGraphicSize(GRID_SIZE, GRID_SIZE);
 			note.updateHitbox();
@@ -779,7 +809,7 @@ class ChartingState extends MusicBeatState {
             
             if (daSus > 0)
 			{
-				var sustainVis:FlxSprite = new FlxSprite(note.x + (GRID_SIZE / 2) - 4, note.y + GRID_SIZE - 5);
+				var sustainVis:FlxSprite = new FlxSprite(note.x + (GRID_SIZE / 2) - 4, note.y + GRID_SIZE);
                 sustainVis.makeGraphic(8, Math.floor(FlxMath.remapToRange(daSus, 0, Conductor.stepCrochet * 16, 0, sectionBG.height)));
 				group.add(sustainVis);
 			}
@@ -797,7 +827,10 @@ class ChartingState extends MusicBeatState {
 
 		FlxG.sound.playMusic(Paths.getSong(song.toLowerCase(), 'Inst'), 0.6, false);
 
-		vocals = new FlxSound().loadEmbedded(Paths.getSong(song.toLowerCase(), 'Voices'));
+        if (Assets.exists(Paths.getSong(song.toLowerCase(), 'Mixed-Voices')))
+		    vocals = new FlxSound().loadEmbedded(Paths.getSong(song.toLowerCase(), 'Mixed-Voices'));
+        else
+            vocals = new FlxSound().loadEmbedded(Paths.getSong(song.toLowerCase(), 'Player-Voices'));
 
 		FlxG.sound.music.pause();
 		vocals.pause();

@@ -16,25 +16,18 @@ class ArrowStrums extends FlxTypedSpriteGroup<FlxSprite>
     private var pressedOffsets:Map<Int, Array<Float>> = new Map();
     private var confirmOffsets:Map<Int, Array<Float>> = new Map();
 
-    override public function new(x:Float, y:Float, ?styleHandler:LocalStyle)
+    override public function new(x:Float, y:Float, styleHandler:LocalStyle)
     {
         super(x, y, 4);
 
 		var style:StyleData = null;
-		if (styleHandler == null) {
-			frames = StyleHandler.giveMeNotes();
-			style = StyleHandler.getData();
-		}
-		else{
-			frames = styleHandler.giveMeNotes();
-			style = styleHandler.curStyle;
-		}
+        style = styleHandler.curStyle;
 
 		for (i in 0...4)
 		{
 			var babyArrow:FlxSprite = new FlxSprite();
 
-			babyArrow.frames = StyleHandler.giveMeStrums();
+			babyArrow.frames = styleHandler.giveMeStrums();
 
 			babyArrow.antialiasing = style.antialiasing;
 			babyArrow.setGraphicSize(Std.int(babyArrow.width * 0.7));
