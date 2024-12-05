@@ -809,7 +809,7 @@ class ChartingState extends MusicBeatState {
             
             if (daSus > 0)
 			{
-				var sustainVis:FlxSprite = new FlxSprite(note.x + (GRID_SIZE / 2) - 4, note.y + GRID_SIZE);
+				var sustainVis:FlxSprite = new FlxSprite(note.x + (GRID_SIZE / 2) - 4, (note.y + GRID_SIZE) - 5);
                 sustainVis.makeGraphic(8, Math.floor(FlxMath.remapToRange(daSus, 0, Conductor.stepCrochet * 16, 0, sectionBG.height)));
 				group.add(sustainVis);
 			}

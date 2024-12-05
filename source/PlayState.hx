@@ -75,7 +75,7 @@ class PlayState extends MusicBeatState
     private var dad:Character;
     private var gf:Character;
 
-    private var camFollow:FlxObject = new FlxObject();
+    public static var camFollow:FlxObject;
 
     private var camGame:FlxCamera;
     private var camHUD:FlxCamera;
@@ -130,6 +130,11 @@ class PlayState extends MusicBeatState
         FlxG.cameras.add(camGame, true);
         FlxG.cameras.add(camHUD, false);
 
+        if (camFollow == null)
+            camFollow = new FlxObject();
+        else
+            camGame.focusOn(camFollow.getMidpoint());
+
         camGame.follow(camFollow, LOCKON, 0.07);
 
         downscroll = Options.get("downscroll");
@@ -152,13 +157,17 @@ class PlayState extends MusicBeatState
         stageMiddle.active = false;
         add(stageMiddle);
 
-        bf = new Boyfriend(770, 450, curSong.player1);
-        add(bf);
-
         dad = new Character(100, 100, curSong.player2);
         add(dad);
-        if (curSong.player2 == curSong.girlfriend)
+        
+        if (curSong.player2 == curSong.girlfriend) {
+            gf.visible = false;
+            gf.active = false;
             dad.setPosition(gf.x, gf.y);
+        }
+
+        bf = new Boyfriend(770, 450, curSong.player1);
+        add(bf);
 
         stageFront = new FlxSpriteGroup();
         stageFront.active = false;
@@ -411,13 +420,15 @@ class PlayState extends MusicBeatState
     
                     transIn = FlxTransitionableState.defaultTransIn;
                     transOut = FlxTransitionableState.defaultTransOut;
-    
-                    FlxG.switchState(new StoryMenuState());
+
+                    camFollow = null;
     
                     if (!botplay)
                         Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
     
                     FlxG.save.flush();
+
+                    FlxG.switchState(new StoryMenuState());
                 }
                 else
                 {
@@ -433,6 +444,8 @@ class PlayState extends MusicBeatState
             else
             {
                 trace('WENT BACK TO FREEPLAY??');
+
+                camFollow = null;
     
                 FlxG.sound.playMusic('assets/music/freakyMenu' + TitleState.soundExt);
                 FlxG.switchState(new FreeplayState());
@@ -465,10 +478,15 @@ class PlayState extends MusicBeatState
         super.update(elapsed);
 
         if (songGenerated) {
-            if (!curSectionData.mustHitSection)
-                camFollow.setPosition(dad.getMidpoint().x + dad.camOffsets[0], dad.getMidpoint().y + dad.camOffsets[1]);
-            else
-                camFollow.setPosition(bf.getMidpoint().x + bf.camOffsets[0], bf.getMidpoint().y + bf.camOffsets[1]);
+            if (camFollow != null) {
+                if (!curSectionData.mustHitSection)
+                    camFollow.setPosition(dad.getMidpoint().x + dad.camOffsets[0], dad.getMidpoint().y + dad.camOffsets[1]);
+                else
+                    camFollow.setPosition(bf.getMidpoint().x + bf.camOffsets[0], bf.getMidpoint().y + bf.camOffsets[1]);
+            }
+            else {
+                trace('camFollow is null lol');
+            }
 
             if (songStarted) {
                 Conductor.songPosition = FlxG.sound.music.time - Conductor.offset;
@@ -540,7 +558,7 @@ class PlayState extends MusicBeatState
                                     daNote.y += daNote.height / 2;
         
                                 if ((!daNote.mustPress || botplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
-                                    && daNote.y + daNote.yOffset * daNote.scale.y + daNote.height >= strumLineMid)
+                                    && daNote.y + daNote.offset.y * daNote.scale.y + daNote.height >= strumLineMid)
                                 {
                                     var swagRect:FlxRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
             
@@ -553,7 +571,7 @@ class PlayState extends MusicBeatState
                         else {
                             if (daNote.isSustainNote
                                 && (!daNote.mustPress || botplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
-                                && daNote.y - daNote.yOffset * daNote.scale.y <= strumLineMid)
+                                && daNote.y - daNote.offset.y * daNote.scale.y <= strumLineMid)
                             {
                                 var swagRect:FlxRect = new FlxRect(0, 0, daNote.width / daNote.scale.x, daNote.height / daNote.scale.y);
         
