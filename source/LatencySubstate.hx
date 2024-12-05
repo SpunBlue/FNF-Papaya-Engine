@@ -160,7 +160,7 @@ class LatencySubstate extends MusicBeatSubstate
 
 	function noteCalc(daNote:Note):Float
 	{
-		return (strumLine.y - (Conductor.songPosition - daNote.strumTime) * (0.45)) + daNote.yOffset;
+		return (strumLine.y - (Conductor.songPosition - daNote.strumTime) * (0.45));
 	}
 
 	override function close()

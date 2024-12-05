@@ -1,5 +1,6 @@
 package;
 
+import flixel.group.FlxSpriteGroup;
 import engine.HelpfulAPI;
 import flixel.addons.transition.FlxTransitionableState;
 import engine.Highscore;
@@ -90,6 +91,11 @@ class PlayState extends MusicBeatState
     private var bfIcon:HealthIcon;
     private var opponentIcon:HealthIcon;
 
+    // stage layering
+    var stageBack:FlxSpriteGroup;
+    var stageMiddle:FlxSpriteGroup;
+    var stageFront:FlxSpriteGroup;
+
     // scoring shit
     private var songScore:Int = 0;
     
@@ -133,26 +139,52 @@ class PlayState extends MusicBeatState
         if (curSong.visualStyle != null)
             style.setStyle(curSong.visualStyle);
 
+        camGame.zoom = defaultZoom;
+
+        stageBack = new FlxSpriteGroup();
+        stageBack.active = false;
+        add(stageBack);
+
+        gf = new Character(400, 130, curSong.girlfriend);
+        add(gf);
+
+        stageMiddle = new FlxSpriteGroup();
+        stageMiddle.active = false;
+        add(stageMiddle);
+
+        bf = new Boyfriend(770, 450, curSong.player1);
+        add(bf);
+
+        dad = new Character(100, 100, curSong.player2);
+        add(dad);
+        if (curSong.player2 == curSong.girlfriend)
+            dad.setPosition(gf.x, gf.y);
+
+        stageFront = new FlxSpriteGroup();
+        stageFront.active = false;
+        add(stageFront);
+
         if (curSong.curStage != null)
             curStage = curSong.curStage;
 
         switch (curStage.toLowerCase()) {
             default:
+                curStage = 'stage';
                 defaultZoom = 0.9;
 
                 var bg:FlxSprite = new FlxSprite(-600, -200).loadGraphic('assets/images/stageback.png');
                 bg.antialiasing = true;
                 bg.scrollFactor.set(0.9, 0.9);
                 bg.active = false;
-                add(bg);
+                stageBack.add(bg);
         
-                var stageFront:FlxSprite = new FlxSprite(-650, 600).loadGraphic('assets/images/stagefront.png');
-                stageFront.setGraphicSize(Std.int(stageFront.width * 1.1));
-                stageFront.updateHitbox();
-                stageFront.antialiasing = true;
-                stageFront.scrollFactor.set(0.9, 0.9);
-                stageFront.active = false;
-                add(stageFront);
+                var stage:FlxSprite = new FlxSprite(-650, 600).loadGraphic('assets/images/stagefront.png');
+                stage.setGraphicSize(Std.int(stage.width * 1.1));
+                stage.updateHitbox();
+                stage.antialiasing = true;
+                stage.scrollFactor.set(0.9, 0.9);
+                stage.active = false;
+                stageBack.add(stage);
         
                 var stageCurtains:FlxSprite = new FlxSprite(-500, -300).loadGraphic('assets/images/stagecurtains.png');
                 stageCurtains.setGraphicSize(Std.int(stageCurtains.width * 0.9));
@@ -160,28 +192,15 @@ class PlayState extends MusicBeatState
                 stageCurtains.antialiasing = true;
                 stageCurtains.scrollFactor.set(1.3, 1.3);
                 stageCurtains.active = false;
-                add(stageCurtains);
+                stageFront.add(stageCurtains);
         }
-
-        camGame.zoom = defaultZoom;
-
-        gf = new Character(400, 130, curSong.girlfriend);
-        add(gf);
-
-        bf = new Boyfriend(770, 450, curSong.player1);
-        add(bf);
-
-        dad = new Character(100, 100, curSong.player2);
-        add(dad);
 
         opponentStrums = new ArrowStrums(Note.swagWidth / 2, Note.swagWidth / 4, style);
         opponentStrums.camera = camHUD;
-        add(opponentStrums);
 
         playerStrums = new ArrowStrums((FlxG.width - (Note.swagWidth * 4)) - Note.swagWidth / 2, Note.swagWidth / 4, style);
         playerStrums.camera = camHUD;
-        add(playerStrums);
-
+        
         if (downscroll)
             playerStrums.y = opponentStrums.y = (FlxG.height - Note.swagWidth) - (Note.swagWidth / 4);
         
@@ -192,11 +211,9 @@ class PlayState extends MusicBeatState
 
         notes = new FlxTypedGroup();
         notes.camera = camHUD;
-        add(notes);
 
         splashes = new FlxTypedGroup();
         splashes.camera = camHUD;
-        add(splashes);
 
         var hbY:Float = FlxG.height * 0.9;
 		if (downscroll)
@@ -236,6 +253,11 @@ class PlayState extends MusicBeatState
         scoreTxt.setFormat(null, 12, FlxColor.WHITE, CENTER, SHADOW, FlxColor.GRAY);
         scoreTxt.camera = camHUD;
         add(scoreTxt);
+
+        add(opponentStrums);
+        add(playerStrums);
+        add(notes);
+        add(splashes);
 
         generateSong();
 
@@ -436,7 +458,7 @@ class PlayState extends MusicBeatState
     {
         health = Math.min(Math.max(health, 0), 2);
 
-        scoreTxt.text = "Score: " + songScore;
+        scoreTxt.text = 'Score: $songScore';
         if (botplay)
             scoreTxt.text += " - BOTPLAY";
 
@@ -483,6 +505,7 @@ class PlayState extends MusicBeatState
                     startSong();
             }
 
+            // You'd expect looping through every note would cause lag but surprisngly not.
             notes.forEachAlive((daNote:Note)->{
                 var strumLine:ArrowStrums = null;
                 switch(daNote.mustPress) {
@@ -499,7 +522,8 @@ class PlayState extends MusicBeatState
 
                 daNote.x = strumLine.strums[daNote.noteData].x + daNote.xOffset;
 
-                // Basically, if the note is on screen.
+                // Basically, if the note is on screen, make it active.
+                // Becareful if you make a mod chart since moving the notes too low (or high, depends) the notes will stay inactive.
                 if (!downscroll && daNote.y <= FlxG.height || downscroll && daNote.y >= -(Note.swagWidth * 2)) {
                     daNote.visible = strumLine.visible;
                     daNote.active = true;
@@ -516,7 +540,7 @@ class PlayState extends MusicBeatState
                                     daNote.y += daNote.height / 2;
         
                                 if ((!daNote.mustPress || botplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
-                                    && daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= strumLineMid)
+                                    && daNote.y + daNote.yOffset * daNote.scale.y + daNote.height >= strumLineMid)
                                 {
                                     var swagRect:FlxRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
             
@@ -529,7 +553,7 @@ class PlayState extends MusicBeatState
                         else {
                             if (daNote.isSustainNote
                                 && (!daNote.mustPress || botplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
-                                && daNote.y + daNote.offset.y * daNote.scale.y <= strumLineMid)
+                                && daNote.y - daNote.yOffset * daNote.scale.y <= strumLineMid)
                             {
                                 var swagRect:FlxRect = new FlxRect(0, 0, daNote.width / daNote.scale.x, daNote.height / daNote.scale.y);
         
@@ -539,14 +563,11 @@ class PlayState extends MusicBeatState
                             }
                         }
 
-                        // CPU Note Hits
-                        if (!daNote.mustPress && !daNote.wasGoodHit && daNote.noteOnTime)
-                            goodNoteHit(daNote);
-
-                        // CPU Player Note Hits
-                        if (botplay && daNote.mustPress && !daNote.wasGoodHit && daNote.noteOnTime)
+                        // CPU Note Hits. Botplay weirdly causes lag?
+                        if ((!daNote.mustPress || botplay) && !daNote.wasGoodHit && daNote.noteOnTime)
                             goodNoteHit(daNote);
                         
+                        // Note missing and clean up. If it's too late to hit the note, kill it and handle missing.
                         if (daNote.mustPress && daNote.tooLate && !daNote.wasGoodHit) {
                             if (!daNote.isSustainNote) {
                                 noteMiss(daNote.noteData);
@@ -609,9 +630,6 @@ class PlayState extends MusicBeatState
         #end
 
         // This part is dirty af because I'm lazy and I just want to get this done
-        bfIcon.updateHitbox();
-		opponentIcon.updateHitbox();
-
         var iconOffset:Int = 10;
 		bfIcon.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - iconOffset);
 		opponentIcon.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - (opponentIcon.width - iconOffset);

@@ -49,6 +49,8 @@
 	<assets path="assets/songs" preload='false' exclude="*.mp3" unless="web"/>
 
 	<assets path="assets/fonts" preload="true" embed='true'/>
+
+	<template path="LICENSE.md" if="desktop"/>
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<haxelib name="flixel" /> <!-- I am using the developer branch! `haxelib git flixel https://github.com/HaxeFlixel/flixel` -->
