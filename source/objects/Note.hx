@@ -150,6 +150,7 @@ class Note extends FlxSprite
 				prevNote.updateHitbox();
 			}
 
+			yOffset = -10;
 			xOffset = (swagWidth / 2) - (width / 2);
 			if (Options.get("downscroll") == true) {
 				flipY = !flipY;
