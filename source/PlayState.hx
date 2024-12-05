@@ -157,13 +157,17 @@ class PlayState extends MusicBeatState
         stageMiddle.active = false;
         add(stageMiddle);
 
-        bf = new Boyfriend(770, 450, curSong.player1);
-        add(bf);
-
         dad = new Character(100, 100, curSong.player2);
         add(dad);
-        if (curSong.player2 == curSong.girlfriend)
+        
+        if (curSong.player2 == curSong.girlfriend) {
+            gf.visible = false;
+            gf.active = false;
             dad.setPosition(gf.x, gf.y);
+        }
+
+        bf = new Boyfriend(770, 450, curSong.player1);
+        add(bf);
 
         stageFront = new FlxSpriteGroup();
         stageFront.active = false;
