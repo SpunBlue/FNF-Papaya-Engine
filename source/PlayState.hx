@@ -75,7 +75,7 @@ class PlayState extends MusicBeatState
     private var dad:Character;
     private var gf:Character;
 
-    private var camFollow:FlxObject = new FlxObject();
+    public static var camFollow:FlxObject;
 
     private var camGame:FlxCamera;
     private var camHUD:FlxCamera;
@@ -129,6 +129,11 @@ class PlayState extends MusicBeatState
 
         FlxG.cameras.add(camGame, true);
         FlxG.cameras.add(camHUD, false);
+
+        if (camFollow == null)
+            camFollow = new FlxObject();
+        else
+            camGame.focusOn(camFollow.getMidpoint());
 
         camGame.follow(camFollow, LOCKON, 0.07);
 
@@ -411,13 +416,15 @@ class PlayState extends MusicBeatState
     
                     transIn = FlxTransitionableState.defaultTransIn;
                     transOut = FlxTransitionableState.defaultTransOut;
-    
-                    FlxG.switchState(new StoryMenuState());
+
+                    camFollow = null;
     
                     if (!botplay)
                         Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
     
                     FlxG.save.flush();
+
+                    FlxG.switchState(new StoryMenuState());
                 }
                 else
                 {
@@ -433,6 +440,8 @@ class PlayState extends MusicBeatState
             else
             {
                 trace('WENT BACK TO FREEPLAY??');
+
+                camFollow = null;
     
                 FlxG.sound.playMusic('assets/music/freakyMenu' + TitleState.soundExt);
                 FlxG.switchState(new FreeplayState());
