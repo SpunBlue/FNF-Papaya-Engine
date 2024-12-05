@@ -120,7 +120,7 @@ class ButtonRemapSubstate extends MusicBeatSubstate
 
 				hitAKey.visible = false;
 			}
-			else if (pressed.toString() != null && !acceptableInputs.contains(pressed)){
+			else if (pressed != NONE && !acceptableInputs.contains(pressed)){
 				var rand:Float = new FlxRandom().int(1, 3);
 				FlxG.sound.play(Paths.getSound("badnoise" + rand));
 			}
