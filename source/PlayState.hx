@@ -1,5 +1,7 @@
 package;
 
+import flixel.FlxSubState;
+import sys.thread.Thread;
 import flixel.group.FlxSpriteGroup;
 import engine.HelpfulAPI;
 import flixel.addons.transition.FlxTransitionableState;
@@ -68,6 +70,10 @@ class PlayState extends MusicBeatState
 
     private var notes:FlxTypedGroup<Note>;
     private var splashes:FlxTypedGroup<NoteSplash>;
+
+    private var updateThread:Bool = false;
+    private var threadNoteGoodHits:Array<Note> = [];
+    private var threadNoteMisses:Array<Note> = [];
     
     private var style:LocalStyle;
 
@@ -394,6 +400,85 @@ class PlayState extends MusicBeatState
 
         songStarted = true;
         canPause = true;
+
+        Thread.create(()->{
+            while (FlxG.state is PlayState) {
+                if (updateThread && songStarted && !paused)
+                {
+                    notes.forEachAlive((daNote:Note) -> {
+                        var strumLine:ArrowStrums = null;
+                        switch(daNote.mustPress) {
+                            case false:
+                                strumLine = opponentStrums;
+                            case true:
+                                strumLine = playerStrums;
+                        }
+        
+                        if (downscroll)
+                            daNote.y = (strumLine.strums[daNote.noteData].y + (songTime - daNote.strumTime) * (0.45 * curSong.speed)) + daNote.yOffset;
+                        else
+                            daNote.y = (strumLine.strums[daNote.noteData].y - (songTime - daNote.strumTime) * (0.45 * curSong.speed)) + daNote.yOffset;
+        
+                        daNote.x = strumLine.strums[daNote.noteData].x + daNote.xOffset;
+
+                        // Basically, if the note is on screen, make it active.
+                        // Becareful if you make a mod chart since moving the notes too low (or high, depends) the notes will stay inactive.
+                        if (!downscroll && daNote.y <= FlxG.height || downscroll && daNote.y >= -(Note.swagWidth * 2)) {
+                            daNote.visible = strumLine.visible;
+                            daNote.active = true;
+
+                            var strumLineMid:Float = strumLine.y + (Note.swagWidth / 2);
+                            if (downscroll) {
+                                if (daNote.isSustainNote)
+                                {
+                                    if (daNote.animation.curAnim.name.endsWith("end") && daNote.prevNote != null)
+                                        daNote.y += daNote.prevNote.height;
+                                    else
+                                        daNote.y += daNote.height / 2;
+            
+                                    if ((!daNote.mustPress || botplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
+                                        && daNote.y + daNote.yOffset * daNote.scale.y + daNote.height >= strumLineMid)
+                                    {
+                                        var swagRect:FlxRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
+                
+                                        swagRect.height = (strumLineMid - daNote.y) / daNote.scale.y;
+                                        swagRect.y = daNote.frameHeight - swagRect.height;
+                                        daNote.clipRect = swagRect;
+                                    }
+                                }
+                            }
+                            else {
+                                if (daNote.isSustainNote
+                                    && (!daNote.mustPress || botplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
+                                    && daNote.y - daNote.yOffset * daNote.scale.y <= strumLineMid)
+                                {
+                                    var swagRect:FlxRect = new FlxRect(0, 0, daNote.width / daNote.scale.x, daNote.height / daNote.scale.y);
+            
+                                    swagRect.y = (strumLineMid - daNote.y) / daNote.scale.y;
+                                    swagRect.height -= swagRect.y;
+                                    daNote.clipRect = swagRect;
+                                }
+                            }
+
+                            // CPU Note Hits. Botplay weirdly causes lag?
+                            if ((!daNote.mustPress || botplay) && !daNote.wasGoodHit && daNote.noteOnTime)
+                                threadNoteGoodHits.push(daNote);
+
+                            if (daNote.tooLate)
+                                threadNoteMisses.push(daNote);
+                        }
+                    });
+                }
+
+                updateThread = false;
+
+                var fps:Int = FlxG.updateFramerate * 2;
+                if (fps > 144)
+                    fps = Math.floor(Math.min(Math.max(FlxG.updateFramerate, 0), 288) + 30);
+
+                Sys.sleep(1 / fps);
+            }
+        });
     }
 
     function endSong()
@@ -474,10 +559,15 @@ class PlayState extends MusicBeatState
         super.update(elapsed);
 
         if (songGenerated) {
-            if (!curSectionData.mustHitSection)
-                camFollow.setPosition(dad.getMidpoint().x + dad.camOffsets[0], dad.getMidpoint().y + dad.camOffsets[1]);
-            else
-                camFollow.setPosition(bf.getMidpoint().x + bf.camOffsets[0], bf.getMidpoint().y + bf.camOffsets[1]);
+            if (camFollow != null) {
+                if (!curSectionData.mustHitSection)
+                    camFollow.setPosition(dad.getMidpoint().x + dad.camOffsets[0], dad.getMidpoint().y + dad.camOffsets[1]);
+                else
+                    camFollow.setPosition(bf.getMidpoint().x + bf.camOffsets[0], bf.getMidpoint().y + bf.camOffsets[1]);
+            }
+            else {
+                trace('camFollow is null lol');
+            }
 
             if (songStarted) {
                 Conductor.songPosition = FlxG.sound.music.time - Conductor.offset;
@@ -514,93 +604,31 @@ class PlayState extends MusicBeatState
                     startSong();
             }
 
-            // You'd expect looping through every note would cause lag but surprisngly not.
-            notes.forEachAlive((daNote:Note)->{
-                var strumLine:ArrowStrums = null;
-                switch(daNote.mustPress) {
-                    case false:
-                        strumLine = opponentStrums;
-                    case true:
-                        strumLine = playerStrums;
+            for (note in threadNoteGoodHits) {
+                goodNoteHit(note);
+                threadNoteGoodHits.remove(note);
+            }
+
+            for (note in threadNoteMisses) {
+                if (note.tooLate && note.mustPress && !note.isSustainNote) {
+                    noteMiss(note.noteData);
+                }
+                else if (note.tooLate && note.mustPress) {
+                    combo = 0;
+                    songScore -= 10;
+                    health -= 0.025;
+
+                    bfVocals.volume = 0;
                 }
 
-                if (downscroll)
-                    daNote.y = (strumLine.strums[daNote.noteData].y + (songTime - daNote.strumTime) * (0.45 * curSong.speed)) + daNote.yOffset;
-                else
-                    daNote.y = (strumLine.strums[daNote.noteData].y - (songTime - daNote.strumTime) * (0.45 * curSong.speed)) + daNote.yOffset;
+                note.kill();
+                notes.remove(note);
+                note.destroy();
 
-                daNote.x = strumLine.strums[daNote.noteData].x + daNote.xOffset;
+                threadNoteMisses.remove(note);
+            }
 
-                // Basically, if the note is on screen, make it active.
-                // Becareful if you make a mod chart since moving the notes too low (or high, depends) the notes will stay inactive.
-                if (!downscroll && daNote.y <= FlxG.height || downscroll && daNote.y >= -(Note.swagWidth * 2)) {
-                    daNote.visible = strumLine.visible;
-                    daNote.active = true;
-
-                    if (songStarted) {
-                        var strumLineMid:Float = strumLine.y + (Note.swagWidth / 2);
-
-                        if (downscroll) {
-                            if (daNote.isSustainNote)
-                            {
-                                if (daNote.animation.curAnim.name.endsWith("end") && daNote.prevNote != null)
-                                    daNote.y += daNote.prevNote.height;
-                                else
-                                    daNote.y += daNote.height / 2;
-        
-                                if ((!daNote.mustPress || botplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
-                                    && daNote.y + daNote.yOffset * daNote.scale.y + daNote.height >= strumLineMid)
-                                {
-                                    var swagRect:FlxRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
-            
-                                    swagRect.height = (strumLineMid - daNote.y) / daNote.scale.y;
-                                    swagRect.y = daNote.frameHeight - swagRect.height;
-                                    daNote.clipRect = swagRect;
-                                }
-                            }
-                        }
-                        else {
-                            if (daNote.isSustainNote
-                                && (!daNote.mustPress || botplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
-                                && daNote.y - daNote.yOffset * daNote.scale.y <= strumLineMid)
-                            {
-                                var swagRect:FlxRect = new FlxRect(0, 0, daNote.width / daNote.scale.x, daNote.height / daNote.scale.y);
-        
-                                swagRect.y = (strumLineMid - daNote.y) / daNote.scale.y;
-                                swagRect.height -= swagRect.y;
-                                daNote.clipRect = swagRect;
-                            }
-                        }
-
-                        // CPU Note Hits. Botplay weirdly causes lag?
-                        if ((!daNote.mustPress || botplay) && !daNote.wasGoodHit && daNote.noteOnTime)
-                            goodNoteHit(daNote);
-                        
-                        // Note missing and clean up. If it's too late to hit the note, kill it and handle missing.
-                        if (daNote.mustPress && daNote.tooLate && !daNote.wasGoodHit) {
-                            if (!daNote.isSustainNote) {
-                                noteMiss(daNote.noteData);
-                            }
-                            else {
-                                combo = 0;
-                                songScore -= 10;
-                                health -= 0.025;
-
-                                bfVocals.volume = 0;
-                            }
-
-                            daNote.kill();
-                            notes.remove(daNote);
-                            daNote.destroy();
-                        }
-                        else if (daNote.tooLate) {
-                            daNote.kill();
-                            notes.remove(daNote);
-                            daNote.destroy();
-                        }
-                    }
-                }
-            });
+            updateThread = true;
         }
 
         if (health <= 0 || controls.RESET) {
@@ -657,6 +685,12 @@ class PlayState extends MusicBeatState
             camGame.zoom = FlxMath.lerp(camGame.zoom, defaultZoom, 0.06);
             camHUD.zoom = FlxMath.lerp(camHUD.zoom, 1, 0.06);
         }
+    }
+
+    override function openSubState(substate:FlxSubState) {
+        updateThread = false;
+
+        super.openSubState(substate);
     }
 
     override function closeSubState() {
