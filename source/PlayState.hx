@@ -554,7 +554,7 @@ class PlayState extends MusicBeatState
                                     daNote.y += daNote.height / 2;
         
                                 if ((!daNote.mustPress || botplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
-                                    && daNote.y + daNote.yOffset * daNote.scale.y + daNote.height >= strumLineMid)
+                                    && daNote.y + daNote.offset.y * daNote.scale.y + daNote.height >= strumLineMid)
                                 {
                                     var swagRect:FlxRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
             
@@ -567,7 +567,7 @@ class PlayState extends MusicBeatState
                         else {
                             if (daNote.isSustainNote
                                 && (!daNote.mustPress || botplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
-                                && daNote.y - daNote.yOffset * daNote.scale.y <= strumLineMid)
+                                && daNote.y - daNote.offset.y * daNote.scale.y <= strumLineMid)
                             {
                                 var swagRect:FlxRect = new FlxRect(0, 0, daNote.width / daNote.scale.x, daNote.height / daNote.scale.y);
         
