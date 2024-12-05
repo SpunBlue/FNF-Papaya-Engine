@@ -474,10 +474,15 @@ class PlayState extends MusicBeatState
         super.update(elapsed);
 
         if (songGenerated) {
-            if (!curSectionData.mustHitSection)
-                camFollow.setPosition(dad.getMidpoint().x + dad.camOffsets[0], dad.getMidpoint().y + dad.camOffsets[1]);
-            else
-                camFollow.setPosition(bf.getMidpoint().x + bf.camOffsets[0], bf.getMidpoint().y + bf.camOffsets[1]);
+            if (camFollow != null) {
+                if (!curSectionData.mustHitSection)
+                    camFollow.setPosition(dad.getMidpoint().x + dad.camOffsets[0], dad.getMidpoint().y + dad.camOffsets[1]);
+                else
+                    camFollow.setPosition(bf.getMidpoint().x + bf.camOffsets[0], bf.getMidpoint().y + bf.camOffsets[1]);
+            }
+            else {
+                trace('camFollow is null lol');
+            }
 
             if (songStarted) {
                 Conductor.songPosition = FlxG.sound.music.time - Conductor.offset;
