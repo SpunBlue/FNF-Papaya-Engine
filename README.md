@@ -24,8 +24,8 @@ Need help? Join our [Discord Server](https://discord.gg/RYQFSxctUJ)!
 I can't stop you, but I'd prefer not. I do plan on making a version of this Engine called "Fruitbowl Engine" that implements Soft-modding into Papaya Engine.
 ### Can I use this for my mod?
 Yes. Not like I'd be able to stop you if I said no, and why would I say no?
-### What do you plan on implementing?
-I plan on implementing easy tools for developing your FNF Mod into the Engine, and make it easier and simpler to get started.
+### Do you have any tools to help me get started?
+Sort of! [Papaya Tools](https://github.com/SpunBlue/Papaya-Tools) lets you convert Psych Engine charts to Papaya Engine, and even the other way around!
 ### What happened to Sublime Engine, Blueberry Engine, and Blackberry Engine? And why are they all named after fruits?
 We don't talk about those... but seriously, they were programmed badly and lazily, and were made for softmodding. This is not.
 ### Why isn't this a fork of the official FNF Repo?
