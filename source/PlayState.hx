@@ -144,8 +144,6 @@ class PlayState extends MusicBeatState
         if (curSong.visualStyle != null)
             style.setStyle(curSong.visualStyle);
 
-        camGame.zoom = defaultZoom;
-
         stageBack = new FlxSpriteGroup();
         stageBack.active = false;
         add(stageBack);
@@ -203,6 +201,8 @@ class PlayState extends MusicBeatState
                 stageCurtains.active = false;
                 stageFront.add(stageCurtains);
         }
+
+        camGame.zoom = defaultZoom;
 
         opponentStrums = new ArrowStrums(Note.swagWidth / 2, Note.swagWidth / 4, style);
         opponentStrums.camera = camHUD;
@@ -558,7 +558,7 @@ class PlayState extends MusicBeatState
                                     daNote.y += daNote.height / 2;
         
                                 if ((!daNote.mustPress || botplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
-                                    && daNote.y + daNote.offset.y * daNote.scale.y + daNote.height >= strumLineMid)
+                                    && daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= strumLineMid)
                                 {
                                     var swagRect:FlxRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
             
@@ -571,7 +571,7 @@ class PlayState extends MusicBeatState
                         else {
                             if (daNote.isSustainNote
                                 && (!daNote.mustPress || botplay || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
-                                && daNote.y - daNote.offset.y * daNote.scale.y <= strumLineMid)
+                                && daNote.y + daNote.offset.y * daNote.scale.y <= strumLineMid)
                             {
                                 var swagRect:FlxRect = new FlxRect(0, 0, daNote.width / daNote.scale.x, daNote.height / daNote.scale.y);
         
