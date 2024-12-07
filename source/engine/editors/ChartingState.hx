@@ -71,6 +71,8 @@ class ChartingState extends MusicBeatState {
 
     private var tags:FlxTypedSpriteGroup<NameTag> = new FlxTypedSpriteGroup();
 
+    private var stupidText:FlxText;
+
     override public function new(song:SwagSong, ?section:Int = 0) 
     {
         _song = song;
@@ -178,6 +180,11 @@ class ChartingState extends MusicBeatState {
 
         add(ui_box);
 
+        stupidText = new FlxText(20, 20);
+        stupidText.setFormat(null, 12);
+        stupidText.camera = uiCam;
+        add(stupidText);
+
         tags.camera = uiCam;
         add(tags);
 
@@ -207,11 +214,14 @@ class ChartingState extends MusicBeatState {
         group.name = 'Editor';
 
         var loadSong:FlxUIButton = new FlxUIButton(uip.x, uip.y, "Load Song", ()->{
+            FlxG.autoPause = true;
+
             var fileDialog = new FileDialog();
 
             fileDialog.onOpen.add((res)->{
                 var chart:SwagSong = Json.parse(res).song;
                 FlxG.switchState(new ChartingState(chart));
+                FlxG.autoPause = false;
             });
 
             fileDialog.open("json", null, "Load Chart");
@@ -219,7 +229,12 @@ class ChartingState extends MusicBeatState {
         group.add(loadSong);
 
         var saveSong:FlxUIButton = new FlxUIButton(uip.x + 100, uip.y, "Save Song", ()->{
+            FlxG.autoPause = true;
+
             var fileDialog = new FileDialog();
+            fileDialog.onSave.add((str)->{
+                FlxG.autoPause = false;
+            });
 
             _song.song = songNameInput.text;
 
@@ -653,6 +668,11 @@ class ChartingState extends MusicBeatState {
 
         if (vocals.playing && (vocals.time > FlxG.sound.music.time + 20 || vocals.time < FlxG.sound.music.time - 20))
 			vocals.time = FlxG.sound.music.time;
+
+        stupidText.text = 'Time: ${FlxG.sound.music.time / 1000}/${FlxG.sound.music.length / 1000}\n' +
+            'Section: $curSection\n' +
+            'Step: $curStep\n' +
+            'Beat: $curBeat';
     }
 
     function updateGrid() {
