@@ -1,5 +1,5 @@
 # FNF-Papaya-Engine
-A Friday Night Funkin' Engine made for hardcoded modifications. Created for the KAVIFUNK Mod to use as a base. [Credits](credits.md)
+A Friday Night Funkin' Engine made for hardcoded modifications. Created for the KAVIFUNK Mod to use as a base.
 
 ## What is this engine for?
 This engine was made as a quick-start for Hard-modded modifications to Friday Night Funkin'. This way, you don't have to use the base game or another FNF Engine and be forced
@@ -32,4 +32,7 @@ We don't talk about those... but seriously, they were programmed badly and lazil
 Because it doesn't let me fork a repo I already have a fork of, and I'm not moving it to an organization like I did with Sublime Engine.
 
 ## Credits
-Friday Night Funkin' is developed and owned by The Funkin' Crew Inc. Support them by clicking on this: [FNF Itch.io](https://ninja-muffin24.itch.io/funkin)!
+Click on [this](credits.md) to view the Credits for the Engine.
+
+### Friday Night Funkin'
+Friday Night Funkin' is developed and owned by The Funkin' Crew Inc. Support them by donating/playing on [Itch.io](https://ninja-muffin24.itch.io/funkin)!
