@@ -214,14 +214,11 @@ class ChartingState extends MusicBeatState {
         group.name = 'Editor';
 
         var loadSong:FlxUIButton = new FlxUIButton(uip.x, uip.y, "Load Song", ()->{
-            FlxG.autoPause = true;
-
             var fileDialog = new FileDialog();
 
             fileDialog.onOpen.add((res)->{
                 var chart:SwagSong = Json.parse(res).song;
                 FlxG.switchState(new ChartingState(chart));
-                FlxG.autoPause = false;
             });
 
             fileDialog.open("json", null, "Load Chart");
@@ -229,12 +226,7 @@ class ChartingState extends MusicBeatState {
         group.add(loadSong);
 
         var saveSong:FlxUIButton = new FlxUIButton(uip.x + 100, uip.y, "Save Song", ()->{
-            FlxG.autoPause = true;
-
             var fileDialog = new FileDialog();
-            fileDialog.onSave.add((str)->{
-                FlxG.autoPause = false;
-            });
 
             _song.song = songNameInput.text;
 
