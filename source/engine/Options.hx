@@ -30,6 +30,10 @@ class Options
         {
             name: "ghostTapping",
             toggle: false
+        },
+        {
+            name: "forceDefaultStyle",
+            toggle: false
         }
     ];
 
