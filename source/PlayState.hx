@@ -1073,11 +1073,11 @@ class PlayState extends MusicBeatState
         return daPos;
     }
 
-    function getSectionFromTime(time:Float):Int {
+    function getSectionFromTime(time:Float, ?startingPoint:Int = 0):Int {
         var startTime:Float = 0;
-        var potentialSection:Int = curSection;
+        var potentialSection:Int = startingPoint;
 
-        for (i in 0...curSong.notes.length) {
+        for (i in startingPoint...curSong.notes.length) {
             startTime = getSectionStartTime(i);
 
             // Check if the time is greater than that starting time of the selected section, and check if it's lower than the next estimated section to confirm.
@@ -1113,7 +1113,7 @@ class PlayState extends MusicBeatState
         super.beatHit();
 
         // update the current section
-        curSection = getSectionFromTime(Conductor.songPosition);
+        curSection = getSectionFromTime(Conductor.songPosition, curSection);
         curSectionData = curSong.notes[curSection];
 
         if (curSectionData != null && curSectionData.changeBPM)
