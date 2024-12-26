@@ -1055,6 +1055,41 @@ class PlayState extends MusicBeatState
         }
 	}
 
+    function getSectionStartTime(section:Int) {
+        var daBPM:Float = PlayState.curSong.bpm;
+        var daPos:Float = 0;
+
+        for (i in 0...section)
+        {
+            if (curSong.notes[i] != null) {
+                if (curSong.notes[i].changeBPM)
+                    daBPM = curSong.notes[i].bpm;
+                
+                var sectionLengthInBeats = curSong.notes[i].lengthInSteps / 4;
+                daPos += sectionLengthInBeats * (1000 * 60 / daBPM);
+            }
+        }
+
+        return daPos;
+    }
+
+    function getSectionFromTime(time:Float):Int {
+        var startTime:Float = 0;
+        var potentialSection:Int = curSection;
+
+        for (i in 0...curSong.notes.length) {
+            startTime = getSectionStartTime(i);
+
+            // Check if the time is greater than that starting time of the selected section, and check if it's lower than the next estimated section to confirm.
+            if (time >= startTime && (curSong.notes[i + 1] != null && time < getSectionStartTime(i + 1))) {
+                potentialSection = i;
+                break;
+            }
+        }
+
+        return potentialSection;
+    }
+
     override function stepHit()
     {
         super.stepHit();
@@ -1066,13 +1101,6 @@ class PlayState extends MusicBeatState
             }
         }
 
-        if (curSong.notes[curSection] != null && curStep % curSong.notes[curSection].lengthInSteps == 0) {
-			++curSection;
-
-			if (curSong.notes[curSection] != null)
-                curSectionData = curSong.notes[curSection];
-		}
-
         FlxG.watch.addQuick('curStep', curStep);
         FlxG.watch.addQuick('curBeat', curBeat);
 		FlxG.watch.addQuick('curSection', curSection);
@@ -1083,6 +1111,10 @@ class PlayState extends MusicBeatState
     override function beatHit()
     {
         super.beatHit();
+
+        // update the current section
+        curSection = getSectionFromTime(Conductor.songPosition);
+        curSectionData = curSong.notes[curSection];
 
         if (curSectionData != null && curSectionData.changeBPM)
             Conductor.changeBPM(curSectionData.bpm);
