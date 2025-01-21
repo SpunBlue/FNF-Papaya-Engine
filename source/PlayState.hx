@@ -91,6 +91,8 @@ class PlayState extends MusicBeatState
     private var bfIcon:HealthIcon;
     private var opponentIcon:HealthIcon;
 
+    private var inCountdown:Bool = false;
+
     // stage layering
     var stageBack:FlxSpriteGroup;
     var stageMiddle:FlxSpriteGroup;
@@ -145,14 +147,12 @@ class PlayState extends MusicBeatState
             style.setStyle(curSong.visualStyle);
 
         stageBack = new FlxSpriteGroup();
-        stageBack.active = false;
         add(stageBack);
 
         gf = new Character(400, 130, curSong.girlfriend);
         add(gf);
 
         stageMiddle = new FlxSpriteGroup();
-        stageMiddle.active = false;
         add(stageMiddle);
 
         dad = new Character(100, 100, curSong.player2);
@@ -168,7 +168,6 @@ class PlayState extends MusicBeatState
         add(bf);
 
         stageFront = new FlxSpriteGroup();
-        stageFront.active = false;
         add(stageFront);
 
         if (curSong.curStage != null)
@@ -182,7 +181,6 @@ class PlayState extends MusicBeatState
                 var bg:FlxSprite = new FlxSprite(-600, -200).loadGraphic('assets/images/stageback.png');
                 bg.antialiasing = true;
                 bg.scrollFactor.set(0.9, 0.9);
-                bg.active = false;
                 stageBack.add(bg);
         
                 var stage:FlxSprite = new FlxSprite(-650, 600).loadGraphic('assets/images/stagefront.png');
@@ -190,7 +188,6 @@ class PlayState extends MusicBeatState
                 stage.updateHitbox();
                 stage.antialiasing = true;
                 stage.scrollFactor.set(0.9, 0.9);
-                stage.active = false;
                 stageBack.add(stage);
         
                 var stageCurtains:FlxSprite = new FlxSprite(-500, -300).loadGraphic('assets/images/stagecurtains.png');
@@ -198,8 +195,10 @@ class PlayState extends MusicBeatState
                 stageCurtains.updateHitbox();
                 stageCurtains.antialiasing = true;
                 stageCurtains.scrollFactor.set(1.3, 1.3);
-                stageCurtains.active = false;
                 stageFront.add(stageCurtains);
+            case 'void':
+                defaultZoom = 0.7;
+                camGame.bgColor = FlxColor.BLACK;
         }
 
         camGame.zoom = defaultZoom;
@@ -271,8 +270,12 @@ class PlayState extends MusicBeatState
         generateSong();
 
         super.create();
-
-        startCountdown();
+        
+        // Cutscenes
+        switch (curSong.song) {
+            default:
+                startCountdown();
+        }
     }
 
     var songGenerated:Bool = false;
@@ -341,6 +344,8 @@ class PlayState extends MusicBeatState
     function startCountdown()
     {
         var maxIterations:Int = 4;
+
+        inCountdown = true;
         
         Conductor.songPosition = 0; // reset dat shit
         Conductor.songPosition = -((Conductor.crochet * (maxIterations + 1)) + Conductor.offset);
@@ -356,7 +361,9 @@ class PlayState extends MusicBeatState
         new FlxTimer().start(Conductor.crochet / 1000, (timer) -> {
             bf.dance();
             dad.dance();
-            gf.dance();
+
+            if (iteration % 2 == 0)
+                gf.dance();
 
             switch (iteration) {
                 case 0:
@@ -519,7 +526,7 @@ class PlayState extends MusicBeatState
                 Conductor.songPosition += FlxG.elapsed * 1000;
                 songTime = Conductor.songPosition;
 
-                if (Conductor.songPosition >= 0)
+                if (Conductor.songPosition >= 0 && inCountdown)
                     startSong();
             }
 
