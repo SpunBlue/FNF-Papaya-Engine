@@ -1,12 +1,14 @@
 # FNF-Papaya-Engine
 A Friday Night Funkin' Engine made for hardcoded modifications. Created for the KAVIFUNK Mod to use as a base.
 
+Please open source any modifications you make to the Engine/Game!
+
 ## What is this engine for?
 This engine was made as a quick-start for Hard-modded modifications to Friday Night Funkin'. This way, you don't have to use the base game or another FNF Engine and be forced
 to either fix up the base game, or remove bloat from the other Engines.
 
 ### How do I use the engine?
-This Engine is NOT made for Soft-modding. It is purely for Hard-coded modifications to the source code. Now, here's how to use it.
+This Engine is NOT made for Soft-modding. It is purely for hardcoded modifications to the source code. Now, here's how to use it.
 
 - Fork the Repository
 - Use GitHub Desktop or Git to clone the Repo to your device
