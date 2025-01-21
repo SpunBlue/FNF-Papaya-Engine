@@ -27,6 +27,8 @@ class LatencySubstate extends MusicBeatSubstate
 
 	var funnyCam:FlxCamera;
 
+	var funnyPresses:Bool = false;
+
 	override public function new()
 	{
 		funnyCam = new FlxCamera();
@@ -140,8 +142,10 @@ class LatencySubstate extends MusicBeatSubstate
 
 		var controls:Array<Bool> = [controls.LEFT_P, controls.DOWN_P, controls.UP_P, controls.RIGHT_P];
 		for (i in 0...4) {
-			if (!FlxG.keys.pressed.ALT && controls[i] == true)
+			if (!FlxG.keys.pressed.ALT && controls[i] == true) {
 				strumLine.playAnim(i, 'pressed');
+				funnyPresses = true;
+			}
 		}
 
 		noteGrp.forEach(function(daNote:Note)
@@ -150,7 +154,7 @@ class LatencySubstate extends MusicBeatSubstate
 				daNote.y = noteCalc(daNote);
 				daNote.x = strumLine.strums[daNote.noteData].x;
 	
-				if (daNote.canBeHit && !FlxG.keys.pressed.ALT && controls[daNote.noteData] == true) {
+				if (daNote.visible && daNote.canBeHit && (funnyPresses && (!FlxG.keys.pressed.ALT && controls[daNote.noteData] == true) || !funnyPresses && Conductor.songPosition >= daNote.strumTime)) {
 					strumLine.playAnim(daNote.noteData, 'confirm');
 					daNote.visible = false;
 				}

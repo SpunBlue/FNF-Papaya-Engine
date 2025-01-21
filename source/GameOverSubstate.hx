@@ -20,7 +20,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 	public function new(x:Float, y:Float)
 	{
-		var daBf:String = 'bf';
+		var daBf:String = PlayState.curSong.player1;
 
 		super();
 
@@ -29,6 +29,8 @@ class GameOverSubstate extends MusicBeatSubstate
 		Conductor.songPosition = 0;
 
 		bf = new Boyfriend(x, y, daBf);
+		if (!bf.animation.exists('firstDeath'))
+			bf = new Boyfriend(x, y, 'bf');
 		add(bf);
 
 		camFollow = new FlxObject(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y, 1, 1);
